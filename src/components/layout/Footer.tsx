@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Landmark, MapPin, Phone, Mail, Clock } from "lucide-react";
 
 const Footer = () => (
@@ -25,11 +25,11 @@ const Footer = () => (
         <div>
           <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider opacity-90">Navigasi</h4>
           <ul className="space-y-2.5 text-sm opacity-80">
-            <li><Link to="/" className="hover:opacity-100 transition-opacity">Beranda</Link></li>
-            <li><Link to="/profil/tentang" className="hover:opacity-100 transition-opacity">Profil Desa</Link></li>
-            <li><Link to="/info/berita" className="hover:opacity-100 transition-opacity">Berita & Info</Link></li>
-            <li><Link to="/data/statistik-kependudukan" className="hover:opacity-100 transition-opacity">Data Desa</Link></li>
-            <li><Link to="/layanan/surat-online" className="hover:opacity-100 transition-opacity">Layanan Publik</Link></li>
+            <li><Link href="/" className="hover:opacity-100 transition-opacity">Beranda</Link></li>
+            <li><Link href="/profil/tentang" className="hover:opacity-100 transition-opacity">Profil Desa</Link></li>
+            <li><Link href="/info/berita" className="hover:opacity-100 transition-opacity">Berita & Info</Link></li>
+            <li><Link href="/data/statistik-kependudukan" className="hover:opacity-100 transition-opacity">Data Desa</Link></li>
+            <li><Link href="/layanan/surat-online" className="hover:opacity-100 transition-opacity">Layanan Publik</Link></li>
           </ul>
         </div>
 
@@ -37,10 +37,10 @@ const Footer = () => (
         <div>
           <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider opacity-90">Layanan</h4>
           <ul className="space-y-2.5 text-sm opacity-80">
-            <li><Link to="/layanan/surat-online" className="hover:opacity-100 transition-opacity">Surat Online</Link></li>
-            <li><Link to="/layanan/pengaduan" className="hover:opacity-100 transition-opacity">Pengaduan Masyarakat</Link></li>
-            <li><Link to="/layanan/panduan" className="hover:opacity-100 transition-opacity">Panduan Layanan</Link></li>
-            <li><Link to="/kontak" className="hover:opacity-100 transition-opacity">Hubungi Kami</Link></li>
+            <li><Link href="/layanan/surat-online" className="hover:opacity-100 transition-opacity">Surat Online</Link></li>
+            <li><Link href="/layanan/pengaduan" className="hover:opacity-100 transition-opacity">Pengaduan Masyarakat</Link></li>
+            <li><Link href="/layanan/panduan" className="hover:opacity-100 transition-opacity">Panduan Layanan</Link></li>
+            <li><Link href="/kontak" className="hover:opacity-100 transition-opacity">Hubungi Kami</Link></li>
           </ul>
         </div>
 

@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, Landmark } from "lucide-react";
 
 interface SubItem {
@@ -54,14 +57,14 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
-  const location = useLocation();
+  const pathname = usePathname();
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     setMobileOpen(false);
     setOpenDropdown(null);
     setMobileExpanded(null);
-  }, [location.pathname]);
+  }, [pathname]);
 
   const handleMouseEnter = (label: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -77,7 +80,7 @@ const Navbar = () => {
       <div className="container-village">
         <div className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
+          <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
               <Landmark className="w-5 h-5 text-primary-foreground" />
             </div>
@@ -106,7 +109,7 @@ const Navbar = () => {
                       {item.children.map((child) => (
                         <Link
                           key={child.to}
-                          to={child.to}
+                          href={child.to}
                           className="block px-4 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-village-green-light transition-colors"
                         >
                           {child.label}
@@ -118,9 +121,9 @@ const Navbar = () => {
               ) : (
                 <Link
                   key={item.label}
-                  to={item.to!}
+                  href={item.to!}
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    location.pathname === item.to
+                    pathname === item.to
                       ? "text-primary bg-village-green-light"
                       : "text-foreground/80 hover:text-primary hover:bg-village-green-light"
                   }`}
@@ -158,7 +161,7 @@ const Navbar = () => {
                       {item.children.map((child) => (
                         <Link
                           key={child.to}
-                          to={child.to}
+                          href={child.to}
                           className="block py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                         >
                           {child.label}
@@ -170,7 +173,7 @@ const Navbar = () => {
               ) : (
                 <Link
                   key={item.label}
-                  to={item.to!}
+                  href={item.to!}
                   className="block px-3 py-3 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
                 >
                   {item.label}
