@@ -1,9 +1,16 @@
 import Link from "next/link";
 import {
   FileText, MessageSquareWarning, BarChart3, Newspaper,
-  Users, Home, MapPin, Ruler, Calendar, Bell, ArrowRight,
-  Phone, Mail, Map
+  Users, Home, MapPin, Ruler, Calendar, ArrowRight,
+  Phone, Mail
 } from "lucide-react";
+
+import { getBeritaList, getKegiatanList, getPengumumanList } from "@/lib/data/informasi";
+import { getCombinedGeoPoints } from "@/lib/data/geo";
+import { getAssetsCurrent } from "@/lib/data/profil";
+import { formatTanggalHari, formatTanggalPanjang, stripHtml } from "@/lib/format";
+import { GeospasialMap } from "@/components/geospasial-map";
+import { SafeImage } from "@/components/safe-image";
 
 const quickLinks = [
   { icon: FileText, label: "Surat Online", desc: "Ajukan surat secara digital", to: "/layanan/surat-online", color: "bg-primary" },
@@ -19,31 +26,37 @@ const stats = [
   { icon: MapPin, label: "Jumlah RT/RW", value: "32 / 8" },
 ];
 
-const berita = [
-  { title: "Pembangunan Jembatan Desa Tahap II Rampung", date: "2 April 2026", cat: "Infrastruktur", desc: "Jembatan penghubung antar dusun telah selesai dibangun dan siap digunakan masyarakat." },
-  { title: "Pelatihan UMKM Digital untuk Warga Desa", date: "28 Maret 2026", cat: "Ekonomi", desc: "Pemerintah desa bekerja sama dengan Dinas Koperasi menggelar pelatihan digitalisasi UMKM." },
-  { title: "Posyandu Lansia Rutin Setiap Bulan", date: "25 Maret 2026", cat: "Kesehatan", desc: "Kegiatan posyandu lansia dilaksanakan setiap minggu keempat di Balai Desa." },
-];
+export default async function Beranda() {
+  const [beritaRes, pengumumanRes, kegiatanRes, geoPoints, assets] = await Promise.all([
+    getBeritaList({ ordering: "-published_at" }),
+    getPengumumanList({ ordering: "-date" }),
+    getKegiatanList({ ordering: "date" }),
+    getCombinedGeoPoints(),
+    getAssetsCurrent(),
+  ]);
 
-const pengumuman = [
-  { title: "Jadwal Vaksinasi Booster Tahap 3", date: "5 April 2026", priority: true },
-  { title: "Pendaftaran BLT Dana Desa 2026 Dibuka", date: "1 April 2026", priority: true },
-  { title: "Rapat Musyawarah Desa Tahun Anggaran 2027", date: "30 Maret 2026", priority: false },
-  { title: "Perbaikan Jalan Dusun III Mulai 10 April", date: "28 Maret 2026", priority: false },
-];
+  const berita = beritaRes.results.slice(0, 3);
+  const pengumuman = pengumumanRes.results.slice(0, 4);
 
-const kegiatan = [
-  { title: "Gotong Royong Bersih Desa", date: "12 April 2026", time: "07:00 WIB", loc: "Sepanjang Jalan Desa" },
-  { title: "Festival Budaya Desa 2026", date: "20 April 2026", time: "09:00 WIB", loc: "Lapangan Desa" },
-  { title: "Peringatan Hari Kartini", date: "21 April 2026", time: "08:00 WIB", loc: "Balai Desa" },
-];
+  // Prioritaskan kegiatan mendatang; kalau tidak ada, tampilkan kegiatan terakhir yang sudah lewat
+  // supaya bagian ini tidak kosong ketika seluruh data kegiatan yang ada kebetulan sudah lampau.
+  const today = new Date().toISOString().slice(0, 10);
+  const upcomingKegiatan = kegiatanRes.results.filter((k) => k.date >= today);
+  const pastKegiatan = kegiatanRes.results.filter((k) => k.date < today).reverse();
+  const kegiatan = (upcomingKegiatan.length > 0 ? upcomingKegiatan : pastKegiatan).slice(0, 3);
 
-export default function Beranda() {
   return (
     <>
       {/* Hero */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-        <img src="/hero-desa.jpg" alt="Pemandangan Desa Sukamakmur" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
+        <SafeImage
+          src={assets?.file_hero_image || "/hero-desa.jpg"}
+          fallbackSrc="/hero-desa.jpg"
+          alt={`Pemandangan ${assets?.nama ?? "Desa Sukamakmur"}`}
+          className="absolute inset-0 w-full h-full object-cover"
+          width={1920}
+          height={1080}
+        />
         <div className="absolute inset-0 gradient-hero" />
         <div className="relative container-village text-primary-foreground py-20">
           <div className="max-w-2xl">
@@ -135,18 +148,29 @@ export default function Beranda() {
             </Link>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {berita.map((b, i) => (
-              <div key={i} className="card-village overflow-hidden group">
-                <div className="h-48 bg-village-green-50" />
+            {berita.length === 0 && (
+              <p className="text-sm text-muted-foreground col-span-full text-center py-8">Belum ada berita.</p>
+            )}
+            {berita.map((b) => (
+              <Link key={b.id} href={`/info/berita/${b.slug}`} className="card-village overflow-hidden group block">
+                {b.image_cover ? (
+                  <SafeImage
+                    src={b.image_cover}
+                    alt={b.title}
+                    className="h-48 w-full object-cover"
+                    fallbackClassName="h-48 bg-village-green-50"
+                  />
+                ) : (
+                  <div className="h-48 bg-village-green-50" />
+                )}
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">{b.cat}</span>
-                    <span className="text-xs text-muted-foreground">{b.date}</span>
+                    <span className="text-xs text-muted-foreground">{formatTanggalPanjang(b.published_at)}</span>
                   </div>
                   <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{b.title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{b.desc}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{stripHtml(b.content)}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
           <div className="sm:hidden mt-6 text-center">
@@ -165,17 +189,17 @@ export default function Beranda() {
               <span className="text-sm font-semibold text-primary uppercase tracking-wider">Perhatian</span>
               <h2 className="text-3xl font-bold mt-2 mb-6 text-foreground">Pengumuman Penting</h2>
               <div className="space-y-3">
-                {pengumuman.map((p, i) => (
-                  <div key={i} className="card-village p-4 flex items-start gap-3">
-                    <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${p.priority ? "bg-accent" : "bg-muted-foreground/30"}`} />
+                {pengumuman.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">Belum ada pengumuman.</p>
+                )}
+                {pengumuman.map((p) => (
+                  <Link key={p.id} href={`/info/pengumuman/${p.id}`} className="card-village p-4 flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full mt-2 shrink-0 bg-muted-foreground/30" />
                     <div>
-                      <h4 className="font-medium text-foreground">{p.title}</h4>
-                      <span className="text-xs text-muted-foreground">{p.date}</span>
+                      <h4 className="font-medium text-foreground">{p.judul}</h4>
+                      <span className="text-xs text-muted-foreground">{formatTanggalPanjang(p.date)}</span>
                     </div>
-                    {p.priority && (
-                      <span className="ml-auto text-xs font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accent shrink-0">Penting</span>
-                    )}
-                  </div>
+                  </Link>
                 ))}
               </div>
               <Link href="/info/pengumuman" className="inline-flex items-center gap-1 text-primary font-semibold mt-4 hover:underline">
@@ -188,20 +212,33 @@ export default function Beranda() {
               <span className="text-sm font-semibold text-primary uppercase tracking-wider">Agenda</span>
               <h2 className="text-3xl font-bold mt-2 mb-6 text-foreground">Kegiatan Mendatang</h2>
               <div className="space-y-4">
-                {kegiatan.map((k, i) => (
-                  <div key={i} className="card-village p-5 flex items-start gap-4">
-                    <div className="text-center shrink-0">
-                      <div className="w-14 h-14 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-primary">
-                        <Calendar className="w-4 h-4 mb-0.5" />
-                        <span className="text-xs font-bold">{k.date.split(" ")[0]}</span>
+                {kegiatan.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">Belum ada data kegiatan.</p>
+                )}
+                {kegiatan.map((k) => {
+                  const isPast = k.date < today;
+                  return (
+                    <div key={k.id} className="card-village p-5 flex items-start gap-4">
+                      <div className="text-center shrink-0">
+                        <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${isPast ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>
+                          <Calendar className="w-4 h-4 mb-0.5" />
+                          <span className="text-xs font-bold">{formatTanggalHari(k.date)}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-foreground">{k.title}</h4>
+                          {isPast && (
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">Selesai</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {formatTanggalPanjang(k.date)} · {k.category === "internal" ? "Internal" : "Eksternal"}
+                        </p>
                       </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">{k.title}</h4>
-                      <p className="text-sm text-muted-foreground">{k.time} · {k.loc}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <Link href="/info/kegiatan" className="inline-flex items-center gap-1 text-primary font-semibold mt-4 hover:underline">
                 Semua Kegiatan <ArrowRight className="w-4 h-4" />
@@ -219,14 +256,8 @@ export default function Beranda() {
             <h2 className="text-3xl font-bold mt-2 text-foreground">Data Geospasial Desa</h2>
             <p className="text-muted-foreground mt-2 max-w-xl mx-auto">Lihat peta wilayah, fasilitas umum, dan batas administratif Desa Sukamakmur.</p>
           </div>
-          <div className="card-village overflow-hidden">
-            <div className="h-72 md:h-96 bg-village-blue-light flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <Map className="w-16 h-16 mx-auto mb-3 opacity-40" />
-                <p className="text-sm font-medium">Peta Interaktif Desa Sukamakmur</p>
-                <p className="text-xs opacity-60">Integrasi peta akan ditampilkan di sini</p>
-              </div>
-            </div>
+          <div className="card-village overflow-hidden p-4 md:p-6">
+            <GeospasialMap points={geoPoints} showGisLayers />
           </div>
           <div className="text-center mt-6">
             <Link href="/data/geospasial" className="inline-flex items-center gap-2 text-primary font-semibold hover:underline">
@@ -261,17 +292,17 @@ export default function Beranda() {
             <div className="card-village p-6">
               <Phone className="w-8 h-8 mx-auto mb-3 text-primary" />
               <h3 className="font-semibold text-foreground mb-1">Telepon</h3>
-              <p className="text-muted-foreground text-sm">(022) 123-4567</p>
+              <p className="text-muted-foreground text-sm">{assets?.kontak ?? "(022) 123-4567"}</p>
             </div>
             <div className="card-village p-6">
               <Mail className="w-8 h-8 mx-auto mb-3 text-primary" />
               <h3 className="font-semibold text-foreground mb-1">Email</h3>
-              <p className="text-muted-foreground text-sm">desa@sukamakmur.desa.id</p>
+              <p className="text-muted-foreground text-sm">{assets?.email ?? "desa@sukamakmur.desa.id"}</p>
             </div>
             <div className="card-village p-6">
               <MapPin className="w-8 h-8 mx-auto mb-3 text-primary" />
               <h3 className="font-semibold text-foreground mb-1">Alamat</h3>
-              <p className="text-muted-foreground text-sm">Jl. Raya Sukamakmur No. 01, Bandung Barat</p>
+              <p className="text-muted-foreground text-sm">{assets?.lokasi ?? "Jl. Raya Sukamakmur No. 01, Bandung Barat"}</p>
             </div>
           </div>
         </div>
