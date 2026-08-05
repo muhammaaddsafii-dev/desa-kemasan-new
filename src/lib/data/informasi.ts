@@ -90,3 +90,13 @@ export async function getPengumumanById(id: string): Promise<Pengumuman | null> 
     return null;
   }
 }
+
+export async function getKegiatanBySlug(slug: string): Promise<Kegiatan | null> {
+  try {
+    return await apiFetch<Kegiatan>(`kegiatan/${slug}/`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    console.error("Gagal memuat detail kegiatan:", error);
+    return null;
+  }
+}

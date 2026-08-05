@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, Landmark } from "lucide-react";
+import { Menu, X, ChevronDown, Landmark, LogIn, LogOut } from "lucide-react";
 
 interface SubItem {
   label: string;
@@ -53,10 +53,16 @@ const navItems: NavItem[] = [
   { label: "Kontak", to: "/kontak" },
 ];
 
-const Navbar = () => {
+interface NavbarProps {
+  /** URL admin dashboard (dari env ADMIN_URL), dipakai untuk tombol Login/Logout. */
+  adminUrl: string;
+}
+
+const Navbar = ({ adminUrl }: NavbarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -65,6 +71,16 @@ const Navbar = () => {
     setOpenDropdown(null);
     setMobileExpanded(null);
   }, [pathname]);
+
+  useEffect(() => {
+    // Penanda non-httpOnly yang di-set admin dashboard saat login/logout (lihat sidesa_logged_in).
+    setIsLoggedIn(document.cookie.split("; ").some((c) => c.startsWith("sidesa_logged_in=")));
+  }, [pathname]);
+
+  const adminBase = adminUrl.endsWith("/") ? adminUrl : `${adminUrl}/`;
+  const authHref = isLoggedIn ? `${adminBase}logout` : `${adminBase}login`;
+  const AuthIcon = isLoggedIn ? LogOut : LogIn;
+  const authLabel = isLoggedIn ? "Logout" : "Login";
 
   const handleMouseEnter = (label: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -132,6 +148,13 @@ const Navbar = () => {
                 </Link>
               )
             )}
+            <a
+              href={authHref}
+              className="ml-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              <AuthIcon className="w-4 h-4" />
+              {authLabel}
+            </a>
           </div>
 
           {/* Mobile Toggle */}
@@ -180,6 +203,13 @@ const Navbar = () => {
                 </Link>
               )
             )}
+            <a
+              href={authHref}
+              className="mx-3 mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              <AuthIcon className="w-4 h-4" />
+              {authLabel}
+            </a>
           </div>
         )}
       </div>

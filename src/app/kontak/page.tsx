@@ -1,12 +1,29 @@
 import { MapPin, Phone, Mail, Clock, Map, MessageCircle } from "lucide-react";
 
-export default function Kontak() {
+import { getAssetsCurrent } from "@/lib/data/profil";
+import { toWhatsAppLink } from "@/lib/format";
+
+export default async function Kontak() {
+  const assets = await getAssetsCurrent();
+  const nama = assets?.nama ?? "Desa Sukamakmur";
+  const lokasi = assets?.lokasi ?? "Jl. Raya Sukamakmur No. 01, Desa Sukamakmur, Kec. Cisarua, Kab. Bandung Barat, Jawa Barat 40551";
+  const kontak = assets?.kontak ?? "(022) 123-4567";
+  const email = assets?.email ?? "desa@sukamakmur.desa.id";
+  const waLink = toWhatsAppLink(assets?.kontak) ?? "https://wa.me/62221234567";
+
+  const contacts = [
+    { icon: MapPin, label: "Alamat", value: lokasi },
+    { icon: Phone, label: "Telepon", value: kontak },
+    { icon: Mail, label: "Email", value: email },
+    { icon: Clock, label: "Jam Operasional", value: "Senin – Jumat, 08:00 – 16:00 WIB\nSabtu – Minggu: Tutup" },
+  ];
+
   return (
     <>
       <section className="gradient-primary text-primary-foreground py-16 md:py-20">
         <div className="container-village">
           <h1 className="text-3xl md:text-4xl font-bold">Hubungi Kami</h1>
-          <p className="mt-3 opacity-90 max-w-2xl">Silakan hubungi Kantor Desa Sukamakmur untuk informasi dan layanan lebih lanjut.</p>
+          <p className="mt-3 opacity-90 max-w-2xl">Silakan hubungi Kantor {nama} untuk informasi dan layanan lebih lanjut.</p>
         </div>
       </section>
 
@@ -17,12 +34,7 @@ export default function Kontak() {
             <div>
               <h2 className="text-xl font-bold text-foreground mb-6">Informasi Kontak</h2>
               <div className="space-y-5 mb-8">
-                {[
-                  { icon: MapPin, label: "Alamat", value: "Jl. Raya Sukamakmur No. 01, Desa Sukamakmur, Kec. Cisarua, Kab. Bandung Barat, Jawa Barat 40551" },
-                  { icon: Phone, label: "Telepon", value: "(022) 123-4567" },
-                  { icon: Mail, label: "Email", value: "desa@sukamakmur.desa.id" },
-                  { icon: Clock, label: "Jam Operasional", value: "Senin – Jumat, 08:00 – 16:00 WIB\nSabtu – Minggu: Tutup" },
-                ].map((c) => (
+                {contacts.map((c) => (
                   <div key={c.label} className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                       <c.icon className="w-5 h-5" />
@@ -37,7 +49,7 @@ export default function Kontak() {
 
               {/* WhatsApp CTA */}
               <a
-                href="https://wa.me/62221234567"
+                href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-primary-foreground font-semibold hover:bg-green-700 transition-colors"
@@ -77,7 +89,7 @@ export default function Kontak() {
             <div className="h-72 md:h-96 bg-village-blue-light flex items-center justify-center">
               <div className="text-center text-muted-foreground">
                 <Map className="w-16 h-16 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">Lokasi Kantor Desa Sukamakmur</p>
+                <p className="font-medium">Lokasi Kantor {nama}</p>
                 <p className="text-xs opacity-60 mt-1">Google Maps embed akan ditampilkan di sini</p>
               </div>
             </div>

@@ -218,7 +218,7 @@ export default async function Beranda() {
                 {kegiatan.map((k) => {
                   const isPast = k.date < today;
                   return (
-                    <div key={k.id} className="card-village p-5 flex items-start gap-4">
+                    <Link key={k.id} href={`/info/kegiatan/${k.slug}`} className="card-village p-5 flex items-start gap-4">
                       <div className="text-center shrink-0">
                         <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${isPast ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>
                           <Calendar className="w-4 h-4 mb-0.5" />
@@ -236,7 +236,7 @@ export default async function Beranda() {
                           {formatTanggalPanjang(k.date)} · {k.category === "internal" ? "Internal" : "Eksternal"}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

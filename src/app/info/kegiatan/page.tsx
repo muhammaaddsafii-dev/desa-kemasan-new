@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Calendar } from "lucide-react";
 
 import { getAllKegiatan } from "@/lib/data/informasi";
@@ -26,7 +27,7 @@ export default async function Kegiatan() {
             {data.map((k) => {
               const status = k.date >= today ? "Mendatang" : "Selesai";
               return (
-                <div key={k.id} className="card-village p-6 flex gap-5">
+                <Link key={k.id} href={`/info/kegiatan/${k.slug}`} className="card-village p-6 flex gap-5">
                   <div className="shrink-0">
                     <div className={`w-16 h-16 rounded-xl flex flex-col items-center justify-center ${status === "Mendatang" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
                       <Calendar className="w-5 h-5 mb-0.5" />
@@ -41,7 +42,7 @@ export default async function Kegiatan() {
                     <h3 className="font-semibold text-foreground mb-1">{k.title}</h3>
                     <p className="text-sm text-muted-foreground">{formatTanggalPanjang(k.date)}</p>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

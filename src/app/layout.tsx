@@ -29,7 +29,7 @@ export default function RootLayout({
       <body>
         <ClientProviders>
           <div className="min-h-screen flex flex-col">
-            <Navbar />
+            <Navbar adminUrl={process.env.ADMIN_URL ?? "http://localhost:3000/"} />
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
