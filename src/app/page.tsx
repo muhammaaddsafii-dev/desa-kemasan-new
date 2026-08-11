@@ -35,6 +35,7 @@ export default async function Beranda() {
     getAssetsCurrent(),
   ]);
 
+  const nama = assets?.nama ?? "Desa Sukamakmur";
   const berita = beritaRes.results.slice(0, 3);
   const pengumuman = pengumumanRes.results.slice(0, 4);
 
@@ -52,7 +53,7 @@ export default async function Beranda() {
         <SafeImage
           src={assets?.file_hero_image || "/hero-desa.jpg"}
           fallbackSrc="/hero-desa.jpg"
-          alt={`Pemandangan ${assets?.nama ?? "Desa Sukamakmur"}`}
+          alt={`Pemandangan ${nama}`}
           className="absolute inset-0 w-full h-full object-cover"
           width={1920}
           height={1080}
@@ -61,10 +62,10 @@ export default async function Beranda() {
         <div className="relative container-village text-primary-foreground py-20">
           <div className="max-w-2xl">
             <span className="inline-block px-4 py-1.5 rounded-full bg-primary-foreground/20 backdrop-blur-sm text-sm font-medium mb-6 animate-fade-in-up">
-              Portal Resmi Desa Sukamakmur
+              Portal Resmi {nama}
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-              Selamat Datang di<br />Desa Sukamakmur
+              Selamat Datang di<br />{nama}
             </h1>
             <p className="text-lg sm:text-xl opacity-90 mb-8 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
               Desa yang asri, maju, dan berdaya — menyediakan layanan publik digital untuk masyarakat yang lebih baik.
@@ -106,10 +107,9 @@ export default async function Beranda() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <span className="text-sm font-semibold text-primary uppercase tracking-wider">Tentang Desa</span>
-              <h2 className="text-3xl font-bold mt-2 mb-4 text-foreground">Mengenal Desa Sukamakmur</h2>
+              <h2 className="text-3xl font-bold mt-2 mb-4 text-foreground">Mengenal {nama}</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                Desa Sukamakmur terletak di kaki pegunungan Bandung Barat, dikelilingi hamparan sawah hijau dan perkebunan teh yang asri. 
-                Dengan sejarah panjang sejak era kolonial, desa ini terus berkembang menjadi desa digital yang melayani masyarakat secara modern dan transparan.
+                {nama} adalah salah satu dari 12 desa yang ada di Kecamatan Sawit, Kabupaten Boyolali, Provinsi Jawa Tengah. Bisa dikatakan bahwa Desa Kemasan adalah ibukotanya Kecamatan Sawit karena kantor kecamatan berada di desa ini. Desa ini terus berkembang menjadi desa digital yang melayani masyarakat secara modern dan transparan.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-6">
                 Potensi utama desa meliputi pertanian organik, pariwisata alam, dan kerajinan anyaman bambu yang sudah dikenal hingga mancanegara.
@@ -254,7 +254,7 @@ export default async function Beranda() {
           <div className="text-center mb-10">
             <span className="text-sm font-semibold text-primary uppercase tracking-wider">Peta Desa</span>
             <h2 className="text-3xl font-bold mt-2 text-foreground">Data Geospasial Desa</h2>
-            <p className="text-muted-foreground mt-2 max-w-xl mx-auto">Lihat peta wilayah, fasilitas umum, dan batas administratif Desa Sukamakmur.</p>
+            <p className="text-muted-foreground mt-2 max-w-xl mx-auto">Lihat peta wilayah, fasilitas umum, dan batas administratif {nama}.</p>
           </div>
           <div className="card-village overflow-hidden p-4 md:p-6">
             <GeospasialMap points={geoPoints} showGisLayers />

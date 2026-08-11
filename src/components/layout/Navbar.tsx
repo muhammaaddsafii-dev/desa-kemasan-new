@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, Landmark, LogIn, LogOut } from "lucide-react";
+import { Menu, X, ChevronDown, LogIn, LogOut } from "lucide-react";
 
 interface SubItem {
   label: string;
@@ -56,9 +56,13 @@ const navItems: NavItem[] = [
 interface NavbarProps {
   /** URL admin dashboard (dari env ADMIN_URL), dipakai untuk tombol Login/Logout. */
   adminUrl: string;
+  /** Nama desa (dari profil_desa), dipakai di logo. */
+  nama: string;
+  /** Lokasi/wilayah desa (dari profil_desa), dipakai sebagai sub-teks logo. */
+  lokasi: string;
 }
 
-const Navbar = ({ adminUrl }: NavbarProps) => {
+const Navbar = ({ adminUrl, nama, lokasi }: NavbarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
@@ -97,12 +101,13 @@ const Navbar = ({ adminUrl }: NavbarProps) => {
         <div className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
-              <Landmark className="w-5 h-5 text-primary-foreground" />
+            <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element -- logo statis di /public, tidak perlu optimasi next/image */}
+              <img src="/logo.jpg" alt={nama} className="w-full h-full object-cover" />
             </div>
             <div className="leading-tight">
-              <span className="font-bold text-base text-foreground">Desa Sukamakmur</span>
-              <span className="block text-xs text-muted-foreground">Kab. Bandung Barat</span>
+              <span className="font-bold text-base text-foreground">{nama}</span>
+              <span className="block text-xs text-muted-foreground">{lokasi}</span>
             </div>
           </Link>
 

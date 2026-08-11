@@ -79,7 +79,7 @@ const Footer = async () => {
 
         <div className="mt-12 pt-8 border-t border-primary-foreground/20 flex flex-col md:flex-row items-center justify-between gap-4 text-sm opacity-70">
           <p>© 2026 {nama}. Hak cipta dilindungi.</p>
-          <p>Didukung oleh Pemerintah Kabupaten Bandung Barat</p>
+          <p>Didukung oleh Pemerintah Kabupaten Boyolali</p>
         </div>
       </div>
     </footer>

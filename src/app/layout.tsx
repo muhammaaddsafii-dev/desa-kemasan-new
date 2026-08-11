@@ -3,21 +3,27 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ClientProviders from "@/components/QueryProvider";
+import { getAssetsCurrent } from "@/lib/data/profil";
 
-export const metadata: Metadata = {
-  title: "Desa Sukamakmur - Portal Resmi Desa",
-  description:
-    "Portal resmi Desa Sukamakmur — pusat informasi, layanan publik, dan data desa untuk masyarakat.",
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const assets = await getAssetsCurrent();
+  const nama = assets?.nama ?? "Desa Sukamakmur";
+  return {
+    title: `${nama} - Portal Resmi Desa`,
+    description: `Portal resmi ${nama} — pusat informasi, layanan publik, dan data desa untuk masyarakat.`,
+    icons: {
+      icon: "/favicon.ico",
+    },
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const assets = await getAssetsCurrent();
+
   return (
     <html lang="id">
       <head>
@@ -29,7 +35,11 @@ export default function RootLayout({
       <body>
         <ClientProviders>
           <div className="min-h-screen flex flex-col">
-            <Navbar adminUrl={process.env.ADMIN_URL ?? "http://localhost:3000/"} />
+            <Navbar
+              adminUrl={process.env.ADMIN_URL ?? "http://localhost:3000/"}
+              nama={assets?.nama ?? "Desa Sukamakmur"}
+              lokasi={assets?.lokasi ?? "Kab. Bandung Barat"}
+            />
             <main className="flex-1">{children}</main>
             <Footer />
           </div>

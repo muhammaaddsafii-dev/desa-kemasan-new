@@ -1,4 +1,5 @@
 import { getCombinedGeoPoints } from "@/lib/data/geo";
+import { getAssetsCurrent } from "@/lib/data/profil";
 import { GeospasialPagePanel } from "@/components/geospasial-page-panel";
 
 const infos = [
@@ -15,7 +16,8 @@ const infos = [
 ];
 
 export default async function Geospasial() {
-  const geoPoints = await getCombinedGeoPoints();
+  const [geoPoints, assets] = await Promise.all([getCombinedGeoPoints(), getAssetsCurrent()]);
+  const nama = assets?.nama ?? "Desa Sukamakmur";
 
   return (
     <>
@@ -23,7 +25,7 @@ export default async function Geospasial() {
         <div className="container-village">
           <span className="text-sm font-medium opacity-80">Data Desa &gt; Geospasial</span>
           <h1 className="text-3xl md:text-4xl font-bold mt-2">Data Geospasial</h1>
-          <p className="mt-3 opacity-90 max-w-2xl">Peta wilayah dan informasi spasial Desa Sukamakmur.</p>
+          <p className="mt-3 opacity-90 max-w-2xl">Peta wilayah dan informasi spasial {nama}.</p>
         </div>
       </section>
 

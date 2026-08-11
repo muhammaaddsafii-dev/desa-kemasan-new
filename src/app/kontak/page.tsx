@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Clock, Map, MessageCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 
 import { getAssetsCurrent } from "@/lib/data/profil";
 import { toWhatsAppLink } from "@/lib/format";
@@ -84,15 +84,15 @@ export default async function Kontak() {
             </div>
           </div>
 
-          {/* Map Placeholder */}
+          {/* Peta Lokasi */}
           <div className="mt-12 card-village overflow-hidden">
-            <div className="h-72 md:h-96 bg-village-blue-light flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <Map className="w-16 h-16 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">Lokasi Kantor {nama}</p>
-                <p className="text-xs opacity-60 mt-1">Google Maps embed akan ditampilkan di sini</p>
-              </div>
-            </div>
+            <iframe
+              title={`Lokasi Kantor ${nama}`}
+              src="https://www.google.com/maps?q=-7.5738333,110.6809575&z=16&output=embed"
+              className="w-full h-72 md:h-96 border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
         </div>
       </section>
