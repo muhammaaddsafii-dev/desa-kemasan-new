@@ -25,6 +25,14 @@ export function formatTanggalHari(dateStr: string | null | undefined): string {
   return format(date, "d", { locale: id });
 }
 
+/** "2026-04-05T10:30:00Z" -> "5 April 2026" (menerima timestamp ISO lengkap) */
+export function formatTanggalDariTimestamp(timestamp: string | null | undefined): string {
+  if (!timestamp) return "-";
+  const date = parseISO(timestamp);
+  if (!isValid(date)) return timestamp;
+  return format(date, "d MMMM yyyy", { locale: id });
+}
+
 /** Membuang tag HTML dari konten rich-text untuk ditampilkan sebagai cuplikan teks polos. */
 export function stripHtml(html: string | null | undefined): string {
   if (!html) return "";
