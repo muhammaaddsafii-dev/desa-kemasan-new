@@ -159,6 +159,7 @@ export default async function Beranda() {
                     alt={b.title}
                     className="h-48 w-full object-cover"
                     fallbackClassName="h-48 bg-village-green-50"
+                    sizes="(min-width: 768px) 33vw, 100vw"
                   />
                 ) : (
                   <div className="h-48 bg-village-green-50" />

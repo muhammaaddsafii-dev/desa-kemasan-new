@@ -52,22 +52,23 @@ interface PaginatedResponse<T> {
   results: T[];
 }
 
-/** Walks every page of a paginated DRF list endpoint and returns the combined results. */
+/** Fetches every page of a paginated DRF list endpoint in parallel and returns the combined results. */
 export async function apiFetchAllPages<T>(
   path: string,
   options: Omit<ApiFetchOptions, "query"> & { query?: Record<string, QueryValue> } = {},
   maxPages = 20,
 ): Promise<T[]> {
-  const results: T[] = [];
-  let page = 1;
-  while (page <= maxPages) {
-    const res = await apiFetch<PaginatedResponse<T>>(path, {
-      ...options,
-      query: { ...options.query, page },
-    });
-    results.push(...res.results);
-    if (!res.next) break;
-    page += 1;
-  }
-  return results;
+  const first = await apiFetch<PaginatedResponse<T>>(path, {
+    ...options,
+    query: { ...options.query, page: 1 },
+  });
+  if (!first.next) return first.results;
+
+  const totalPages = Math.min(Math.ceil(first.count / first.results.length), maxPages);
+  const rest = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, i) =>
+      apiFetch<PaginatedResponse<T>>(path, { ...options, query: { ...options.query, page: i + 2 } }),
+    ),
+  );
+  return [...first.results, ...rest.flatMap((res) => res.results)];
 }

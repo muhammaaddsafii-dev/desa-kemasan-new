@@ -35,6 +35,7 @@ export default async function BeritaDetail({ params }: { params: { slug: string 
               alt={berita.title}
               className="w-full h-64 md:h-96 object-cover rounded-xl mb-8"
               fallbackClassName="hidden"
+              sizes="(min-width: 1024px) 896px, 100vw"
             />
           )}
 
@@ -54,6 +55,7 @@ export default async function BeritaDetail({ params }: { params: { slug: string 
                     alt={berita.title}
                     className="w-full h-40 object-cover rounded-lg card-village"
                     fallbackClassName="hidden"
+                    sizes="(min-width: 768px) 33vw, 50vw"
                   />
                 ))}
               </div>

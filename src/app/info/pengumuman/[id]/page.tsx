@@ -44,6 +44,7 @@ export default async function PengumumanDetail({ params }: { params: { id: strin
                     alt={pengumuman.judul}
                     className="w-full h-40 object-cover rounded-lg card-village"
                     fallbackClassName="hidden"
+                    sizes="(min-width: 768px) 33vw, 50vw"
                   />
                 ))}
               </div>

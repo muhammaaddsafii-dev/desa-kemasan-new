@@ -12,6 +12,7 @@ const PersonCard = ({ nama, jabatan, foto, highlight }: { nama: string; jabatan:
         alt={nama}
         className="w-16 h-16 rounded-full mx-auto mb-3 object-cover"
         fallbackClassName={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center ${highlight ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+        sizes="64px"
       />
     ) : (
       <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center ${highlight ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>

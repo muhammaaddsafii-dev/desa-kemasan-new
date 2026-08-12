@@ -32,6 +32,7 @@ export default async function Pengumuman() {
                     alt={p.judul}
                     className="w-20 h-20 rounded-lg object-cover shrink-0 hidden sm:block"
                     fallbackClassName="hidden"
+                    sizes="80px"
                   />
                 )}
                 <div className="min-w-0">
