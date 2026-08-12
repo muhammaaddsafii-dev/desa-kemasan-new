@@ -38,7 +38,7 @@ const navItems: NavItem[] = [
     label: "Data Desa",
     children: [
       { label: "Statistik Kependudukan", to: "/data/statistik-kependudukan" },
-      { label: "Statistik Keuangan", to: "/data/statistik-keuangan" },
+      // { label: "Statistik Keuangan", to: "/data/statistik-keuangan" },
       { label: "Geospasial", to: "/data/geospasial" },
     ],
   },
@@ -155,6 +155,8 @@ const Navbar = ({ adminUrl, nama, lokasi }: NavbarProps) => {
             )}
             <a
               href={authHref}
+              target="_blank"
+              rel="noopener noreferrer"
               className="ml-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
             >
               <AuthIcon className="w-4 h-4" />
@@ -210,6 +212,8 @@ const Navbar = ({ adminUrl, nama, lokasi }: NavbarProps) => {
             )}
             <a
               href={authHref}
+              target="_blank"
+              rel="noopener noreferrer"
               className="mx-3 mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
             >
               <AuthIcon className="w-4 h-4" />
