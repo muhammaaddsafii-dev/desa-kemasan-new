@@ -46,6 +46,11 @@ export interface KondisiJalan {
   updated_at: string;
 }
 
+export interface GeoPoint {
+  type: "Point";
+  coordinates: [number, number];
+}
+
 /**
  * Data penduduk versi publik - hanya titik lokasi, tanpa NIK/data pribadi
  * (lihat PendudukPublicSerializer di backend).
@@ -56,6 +61,5 @@ export interface PendudukPublic {
   jenis_kelamin: string;
   rt: string | null;
   rw: string | null;
-  latitude: number | null;
-  longitude: number | null;
+  geom: GeoPoint | null;
 }

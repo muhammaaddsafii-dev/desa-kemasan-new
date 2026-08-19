@@ -1,12 +1,9 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import "leaflet.markercluster/dist/MarkerCluster.css";
-import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 
 import { createCategoryIcon, GisLayers, MapInstanceCapture, MapLayerControl } from "@/components/gis-map-layers";
@@ -120,27 +117,23 @@ export default function GeospasialMapInner({
         />
         <GisLayers gisLayers={gisLayers} visibleLayers={visibleGisLayers} />
         {!fitted && <FitBoundsController bounds={bounds} ready={readyToFit} onDone={() => setFitted(true)} />}
-        {categories.map((category) => {
-          if (!visibleCategories.has(category)) return null;
-          const categoryPoints = points.filter((p) => p.category === category);
-          if (categoryPoints.length === 0) return null;
-          return (
-            <MarkerClusterGroup key={category} chunkedLoading removeOutsideVisibleBounds={false}>
-              {categoryPoints.map((point) => (
-                <Marker key={point.id} position={[point.lat, point.lng]} icon={icons[category]}>
-                  <Popup>
-                    <div className="text-sm">
-                      <p className="font-semibold text-foreground">{point.title}</p>
-                      {point.subtitle && <p className="text-muted-foreground">{point.subtitle}</p>}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {GEO_CATEGORY_CONFIG[category].label}
-                      </p>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MarkerClusterGroup>
-          );
+        {categories.flatMap((category) => {
+          if (!visibleCategories.has(category)) return [];
+          return points
+            .filter((p) => p.category === category)
+            .map((point) => (
+              <Marker key={point.id} position={[point.lat, point.lng]} icon={icons[category]}>
+                <Popup>
+                  <div className="text-sm">
+                    <p className="font-semibold text-foreground">{point.title}</p>
+                    {point.subtitle && <p className="text-muted-foreground">{point.subtitle}</p>}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {GEO_CATEGORY_CONFIG[category].label}
+                    </p>
+                  </div>
+                </Popup>
+              </Marker>
+            ));
         })}
         <MapInstanceCapture mapRef={mapRef} />
       </MapContainer>

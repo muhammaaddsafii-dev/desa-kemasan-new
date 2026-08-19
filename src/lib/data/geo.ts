@@ -39,11 +39,11 @@ export async function getCombinedGeoPoints(): Promise<GeoMapPoint[]> {
 
   return [
     ...pendudukList
-      .filter((p): p is typeof p & { latitude: number; longitude: number } => p.latitude !== null && p.longitude !== null)
+      .filter((p): p is typeof p & { geom: NonNullable<typeof p.geom> } => p.geom !== null)
       .map((p) => ({
         id: `penduduk-${p.id}`,
-        lat: p.latitude,
-        lng: p.longitude,
+        lat: p.geom.coordinates[1],
+        lng: p.geom.coordinates[0],
         category: "penduduk" as const,
         title: p.nama,
         subtitle: [p.rt && `RT ${p.rt}`, p.rw && `RW ${p.rw}`].filter(Boolean).join(" / ") || undefined,
