@@ -6,7 +6,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 
-import { createCategoryIcon, GisLayers, MapInstanceCapture, MapLayerControl } from "@/components/gis-map-layers";
+import {
+  BASE_LAYER_CONFIG,
+  createCategoryIcon,
+  GisLayers,
+  MapInstanceCapture,
+  MapLayerControl,
+  type BaseLayerKey,
+} from "@/components/gis-map-layers";
 import {
   DEFAULT_MAP_CENTER,
   DEFAULT_MAP_ZOOM,
@@ -65,6 +72,8 @@ export default function GeospasialMapInner({
   const categories = Object.keys(GEO_CATEGORY_CONFIG) as GeoMapCategory[];
   const mapRef = useRef<L.Map | null>(null);
   const [fitted, setFitted] = useState(false);
+  const [baseLayer, setBaseLayer] = useState<BaseLayerKey>("satelite");
+  const baseLayerConfig = BASE_LAYER_CONFIG[baseLayer];
 
   // Gabungkan bounds dari titik marker (penduduk/fasum/kondisi jalan) DAN dari layer referensi GIS
   // yang sedang tampil (jalan, perairan, batas admin, tanah desa) - supaya auto-zoom mencakup semua
@@ -95,7 +104,7 @@ export default function GeospasialMapInner({
   const readyToFit = bounds.isValid() && !layersStillLoading;
 
   return (
-    <div className="relative isolate h-full w-full overflow-hidden">
+    <div className="relative isolate h-full w-full">
       <MapLayerControl
         visibleLayers={visibleGisLayers}
         loadingLayers={loadingGisLayers}
@@ -109,34 +118,40 @@ export default function GeospasialMapInner({
             map.flyTo(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM, { duration: 1 });
           }
         }}
+        baseLayer={baseLayer}
+        onBaseLayerChange={setBaseLayer}
       />
-      <MapContainer center={DEFAULT_MAP_CENTER} zoom={DEFAULT_MAP_ZOOM} className="w-full h-full">
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <GisLayers gisLayers={gisLayers} visibleLayers={visibleGisLayers} />
-        {!fitted && <FitBoundsController bounds={bounds} ready={readyToFit} onDone={() => setFitted(true)} />}
-        {categories.flatMap((category) => {
-          if (!visibleCategories.has(category)) return [];
-          return points
-            .filter((p) => p.category === category)
-            .map((point) => (
-              <Marker key={point.id} position={[point.lat, point.lng]} icon={icons[category]}>
-                <Popup>
-                  <div className="text-sm">
-                    <p className="font-semibold text-foreground">{point.title}</p>
-                    {point.subtitle && <p className="text-muted-foreground">{point.subtitle}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {GEO_CATEGORY_CONFIG[category].label}
-                    </p>
-                  </div>
-                </Popup>
-              </Marker>
-            ));
-        })}
-        <MapInstanceCapture mapRef={mapRef} />
-      </MapContainer>
+      <div className="h-full w-full overflow-hidden">
+        <MapContainer center={DEFAULT_MAP_CENTER} zoom={DEFAULT_MAP_ZOOM} className="w-full h-full">
+          <TileLayer
+            key={baseLayer}
+            attribution={baseLayerConfig.attribution}
+            url={baseLayerConfig.url}
+            maxZoom={baseLayerConfig.maxZoom}
+          />
+          <GisLayers gisLayers={gisLayers} visibleLayers={visibleGisLayers} />
+          {!fitted && <FitBoundsController bounds={bounds} ready={readyToFit} onDone={() => setFitted(true)} />}
+          {categories.flatMap((category) => {
+            if (!visibleCategories.has(category)) return [];
+            return points
+              .filter((p) => p.category === category)
+              .map((point) => (
+                <Marker key={point.id} position={[point.lat, point.lng]} icon={icons[category]}>
+                  <Popup>
+                    <div className="text-sm">
+                      <p className="font-semibold text-foreground">{point.title}</p>
+                      {point.subtitle && <p className="text-muted-foreground">{point.subtitle}</p>}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {GEO_CATEGORY_CONFIG[category].label}
+                      </p>
+                    </div>
+                  </Popup>
+                </Marker>
+              ));
+          })}
+          <MapInstanceCapture mapRef={mapRef} />
+        </MapContainer>
+      </div>
     </div>
   );
 }

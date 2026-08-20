@@ -24,8 +24,34 @@ export const GIS_LAYER_STYLES: Record<GisLayerKey, L.PathOptions> = {
   tanah_desa: { color: "#15803d", weight: 1, fillColor: "#86efac", fillOpacity: 0.4 },
 };
 
+export type BaseLayerKey = "satelite" | "topografi" | "osm";
+
+export const BASE_LAYER_CONFIG: Record<BaseLayerKey, { label: string; url: string; attribution: string; maxZoom?: number }> = {
+  satelite: {
+    label: "Satelit",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+    maxZoom: 19,
+  },
+  topografi: {
+    label: "Topografi",
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution:
+      'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+    maxZoom: 17,
+  },
+  osm: {
+    label: "OpenStreetMap",
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  },
+};
+
+export const BASE_LAYER_KEYS = Object.keys(BASE_LAYER_CONFIG) as BaseLayerKey[];
+
 const MARKER_CATEGORY_ICON: Record<GeoMapCategory, string> = {
-  penduduk: "people",
+  penduduk: "home",
   fasum: "domain",
   jalan: "edit_road",
 };
@@ -92,11 +118,15 @@ export function MapLayerControl({
   loadingLayers,
   onToggleLayer,
   onResetView,
+  baseLayer,
+  onBaseLayerChange,
 }: {
   visibleLayers?: Record<GisLayerKey, boolean>;
   loadingLayers?: Partial<Record<GisLayerKey, boolean>>;
   onToggleLayer?: (layer: GisLayerKey) => void;
   onResetView: () => void;
+  baseLayer?: BaseLayerKey;
+  onBaseLayerChange?: (layer: BaseLayerKey) => void;
 }) {
   const [panelOpen, setPanelOpen] = useState(false);
 
@@ -115,7 +145,7 @@ export function MapLayerControl({
       >
         <Icon name="center_focus_strong" className="text-lg" />
       </button>
-      {onToggleLayer && (
+      {(onToggleLayer || onBaseLayerChange) && (
         <div className="relative">
           <button
             type="button"
@@ -128,25 +158,48 @@ export function MapLayerControl({
           </button>
           {panelOpen && (
             <div className="absolute right-0 mt-2 w-44 rounded-xl border bg-card p-3.5 shadow-lg">
-              <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Layer Peta</p>
-              <div className="space-y-2.5">
-                {GIS_LAYER_KEYS.map((layer) => (
-                  <label key={layer} className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
-                    <input
-                      type="checkbox"
-                      checked={visibleLayers?.[layer] ?? false}
-                      onChange={() => onToggleLayer(layer)}
-                      className="h-4 w-4 shrink-0 rounded border-input accent-primary"
-                    />
-                    <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: GIS_LAYER_COLORS[layer] }}
-                    />
-                    <span className="flex-1 truncate">{GIS_LAYER_LABELS[layer]}</span>
-                    {loadingLayers?.[layer] && <Icon name="progress_activity" className="animate-spin text-sm text-muted-foreground" />}
-                  </label>
-                ))}
-              </div>
+              {onBaseLayerChange && (
+                <>
+                  <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Jenis Peta Dasar</p>
+                  <div className="mb-3.5 space-y-2.5">
+                    {BASE_LAYER_KEYS.map((key) => (
+                      <label key={key} className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                        <input
+                          type="radio"
+                          name="base-layer"
+                          checked={baseLayer === key}
+                          onChange={() => onBaseLayerChange(key)}
+                          className="h-4 w-4 shrink-0 accent-primary"
+                        />
+                        <span className="flex-1 truncate">{BASE_LAYER_CONFIG[key].label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </>
+              )}
+              {onToggleLayer && (
+                <>
+                  <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Layer Peta</p>
+                  <div className="space-y-2.5">
+                    {GIS_LAYER_KEYS.map((layer) => (
+                      <label key={layer} className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                        <input
+                          type="checkbox"
+                          checked={visibleLayers?.[layer] ?? false}
+                          onChange={() => onToggleLayer(layer)}
+                          className="h-4 w-4 shrink-0 rounded border-input accent-primary"
+                        />
+                        <span
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: GIS_LAYER_COLORS[layer] }}
+                        />
+                        <span className="flex-1 truncate">{GIS_LAYER_LABELS[layer]}</span>
+                        {loadingLayers?.[layer] && <Icon name="progress_activity" className="animate-spin text-sm text-muted-foreground" />}
+                      </label>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
