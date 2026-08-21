@@ -89,7 +89,11 @@ export function StatistikKependudukanContent({ nama, statistik }: { nama: string
                           cy="50%"
                           outerRadius={100}
                           dataKey="value"
-                          label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                          label={({ name, percent }) => {
+                            const pct = (percent ?? 0) * 100;
+                            const pctLabel = pct > 0 && pct < 0.1 ? "<0.1" : pct.toFixed(pct < 10 ? 1 : 0);
+                            return `${name} ${pctLabel}%`;
+                          }}
                           fontSize={12}
                         >
                           {statistik.pendidikan.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
