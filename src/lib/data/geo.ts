@@ -2,31 +2,21 @@ import { apiFetchAllPages } from "@/lib/api/client";
 import type { GeoMapPoint } from "@/lib/constants/map";
 import type { Fasum, KondisiJalan, PendudukPublic } from "@/lib/types/geo";
 
+// Catatan: fungsi-fungsi di bawah ini SENGAJA tidak menangkap error fetch-nya sendiri (tidak ada
+// try/catch di sini) - kegagalan asli (backend down/cold-start habis retry) dibiarkan menjalar ke
+// atas supaya ditangkap oleh error.tsx terdekat (yang menampilkan "Gagal memuat, coba lagi"),
+// bukan didiamkan jadi array kosong yang terlihat sama persis dengan "memang belum ada data".
+
 export async function getFasumList(): Promise<Fasum[]> {
-  try {
-    return await apiFetchAllPages<Fasum>("fasum/");
-  } catch (error) {
-    console.error("Gagal memuat data fasilitas umum:", error);
-    return [];
-  }
+  return apiFetchAllPages<Fasum>("fasum/");
 }
 
 export async function getKondisiJalanList(): Promise<KondisiJalan[]> {
-  try {
-    return await apiFetchAllPages<KondisiJalan>("kondisi-jalan/");
-  } catch (error) {
-    console.error("Gagal memuat data kondisi jalan:", error);
-    return [];
-  }
+  return apiFetchAllPages<KondisiJalan>("kondisi-jalan/");
 }
 
 export async function getPendudukList(): Promise<PendudukPublic[]> {
-  try {
-    return await apiFetchAllPages<PendudukPublic>("penduduk/");
-  } catch (error) {
-    console.error("Gagal memuat data penduduk:", error);
-    return [];
-  }
+  return apiFetchAllPages<PendudukPublic>("penduduk/");
 }
 
 /** Gabungan titik peta penduduk + fasilitas umum + kondisi jalan, dipakai di halaman '/' dan '/data/geospasial'. */

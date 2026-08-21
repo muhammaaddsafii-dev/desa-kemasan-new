@@ -1,6 +1,9 @@
 import { apiFetch, ApiError, apiFetchAllPages } from "@/lib/api/client";
 import type { Assets, PerangkatDesa } from "@/lib/types/profil";
 
+// Sengaja tetap menangkap SEMUA error (tidak dilempar ke atas seperti fungsi lain di file data/*):
+// dipakai di root layout untuk nama desa/logo, jadi tidak boleh sampai bikin seluruh situs down
+// hanya karena satu request ini gagal - fallback tampilan default di layout.tsx lebih aman.
 export async function getAssetsCurrent(): Promise<Assets | null> {
   try {
     return await apiFetch<Assets>("assets/current/");
@@ -12,10 +15,5 @@ export async function getAssetsCurrent(): Promise<Assets | null> {
 }
 
 export async function getPerangkatDesaList(): Promise<PerangkatDesa[]> {
-  try {
-    return await apiFetchAllPages<PerangkatDesa>("perangkat-desa/", { query: { ordering: "urutan" } });
-  } catch (error) {
-    console.error("Gagal memuat data perangkat desa:", error);
-    return [];
-  }
+  return apiFetchAllPages<PerangkatDesa>("perangkat-desa/", { query: { ordering: "urutan" } });
 }

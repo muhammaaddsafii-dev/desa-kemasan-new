@@ -8,67 +8,40 @@ interface ListParams {
   ordering?: string;
 }
 
-const EMPTY_PAGE = { count: 0, next: null, previous: null, results: [] };
+// Catatan: fungsi list/all di bawah SENGAJA tidak menangkap error fetch-nya sendiri - kegagalan
+// asli dibiarkan menjalar ke error.tsx terdekat alih-alih didiamkan jadi halaman kosong. Fungsi
+// detail (by slug/id) tetap menangkap 404 secara eksplisit (itu memang "tidak ditemukan", bukan
+// kegagalan) tapi tetap melempar error lain.
 
 export async function getBeritaList(params: ListParams = {}): Promise<PaginatedResponse<Berita>> {
-  try {
-    return await apiFetch<PaginatedResponse<Berita>>("berita/", {
-      query: { page: params.page, search: params.search, ordering: params.ordering ?? "-published_at" },
-    });
-  } catch (error) {
-    console.error("Gagal memuat data berita:", error);
-    return EMPTY_PAGE;
-  }
+  return apiFetch<PaginatedResponse<Berita>>("berita/", {
+    query: { page: params.page, search: params.search, ordering: params.ordering ?? "-published_at" },
+  });
 }
 
 export async function getKegiatanList(params: ListParams = {}): Promise<PaginatedResponse<Kegiatan>> {
-  try {
-    return await apiFetch<PaginatedResponse<Kegiatan>>("kegiatan/", {
-      query: { page: params.page, search: params.search, ordering: params.ordering ?? "-date" },
-    });
-  } catch (error) {
-    console.error("Gagal memuat data kegiatan:", error);
-    return EMPTY_PAGE;
-  }
+  return apiFetch<PaginatedResponse<Kegiatan>>("kegiatan/", {
+    query: { page: params.page, search: params.search, ordering: params.ordering ?? "-date" },
+  });
 }
 
 export async function getPengumumanList(params: ListParams = {}): Promise<PaginatedResponse<Pengumuman>> {
-  try {
-    return await apiFetch<PaginatedResponse<Pengumuman>>("pengumuman/", {
-      query: { page: params.page, search: params.search, ordering: params.ordering ?? "-date" },
-    });
-  } catch (error) {
-    console.error("Gagal memuat data pengumuman:", error);
-    return EMPTY_PAGE;
-  }
+  return apiFetch<PaginatedResponse<Pengumuman>>("pengumuman/", {
+    query: { page: params.page, search: params.search, ordering: params.ordering ?? "-date" },
+  });
 }
 
 /** Mengambil seluruh halaman - dipakai di halaman daftar penuh (bukan preview beranda). */
 export async function getAllBerita(): Promise<Berita[]> {
-  try {
-    return await apiFetchAllPages<Berita>("berita/", { query: { ordering: "-published_at" } });
-  } catch (error) {
-    console.error("Gagal memuat data berita:", error);
-    return [];
-  }
+  return apiFetchAllPages<Berita>("berita/", { query: { ordering: "-published_at" } });
 }
 
 export async function getAllKegiatan(): Promise<Kegiatan[]> {
-  try {
-    return await apiFetchAllPages<Kegiatan>("kegiatan/", { query: { ordering: "-date" } });
-  } catch (error) {
-    console.error("Gagal memuat data kegiatan:", error);
-    return [];
-  }
+  return apiFetchAllPages<Kegiatan>("kegiatan/", { query: { ordering: "-date" } });
 }
 
 export async function getAllPengumuman(): Promise<Pengumuman[]> {
-  try {
-    return await apiFetchAllPages<Pengumuman>("pengumuman/", { query: { ordering: "-date" } });
-  } catch (error) {
-    console.error("Gagal memuat data pengumuman:", error);
-    return [];
-  }
+  return apiFetchAllPages<Pengumuman>("pengumuman/", { query: { ordering: "-date" } });
 }
 
 export async function getBeritaBySlug(slug: string): Promise<Berita | null> {
@@ -76,8 +49,7 @@ export async function getBeritaBySlug(slug: string): Promise<Berita | null> {
     return await apiFetch<Berita>(`berita/${slug}/`);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
-    console.error("Gagal memuat detail berita:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -86,8 +58,7 @@ export async function getPengumumanById(id: string): Promise<Pengumuman | null> 
     return await apiFetch<Pengumuman>(`pengumuman/${id}/`);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
-    console.error("Gagal memuat detail pengumuman:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -96,7 +67,6 @@ export async function getKegiatanBySlug(slug: string): Promise<Kegiatan | null> 
     return await apiFetch<Kegiatan>(`kegiatan/${slug}/`);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
-    console.error("Gagal memuat detail kegiatan:", error);
-    return null;
+    throw error;
   }
 }
