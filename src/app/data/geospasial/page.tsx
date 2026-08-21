@@ -2,6 +2,11 @@ import { getCombinedGeoPoints } from "@/lib/data/geo";
 import { getAssetsCurrent } from "@/lib/data/profil";
 import { GeospasialPagePanel } from "@/components/geospasial-page-panel";
 
+// Render dinamis per-request, jangan di-prerender statis saat build: saat build image Docker,
+// API_URL belum ter-set ke backend produksi (env var Cloud Run baru tersedia saat container jalan,
+// bukan saat "docker build") - prerender statis akan gagal fetch/bake data kosong.
+export const dynamic = "force-dynamic";
+
 const infos = [
   { label: "Luas Wilayah", value: "12,5 km²" },
   { label: "Batas Utara", value: "Desa Cikalong" },

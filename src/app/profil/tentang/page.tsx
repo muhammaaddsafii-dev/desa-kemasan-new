@@ -2,6 +2,10 @@ import { History, Mountain, Leaf, Sprout } from "lucide-react";
 
 import { getAssetsCurrent } from "@/lib/data/profil";
 
+// Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
+// catatan di src/app/data/geospasial/page.tsx.
+export const dynamic = "force-dynamic";
+
 export default async function TentangDesa() {
   const assets = await getAssetsCurrent();
   const nama = assets?.nama ?? "Desa Sukamakmur";

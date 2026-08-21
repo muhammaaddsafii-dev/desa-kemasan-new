@@ -4,6 +4,10 @@ import { Calendar } from "lucide-react";
 import { getAllKegiatan } from "@/lib/data/informasi";
 import { formatTanggalHari, formatTanggalPanjang } from "@/lib/format";
 
+// Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
+// catatan di src/app/data/geospasial/page.tsx.
+export const dynamic = "force-dynamic";
+
 export default async function Kegiatan() {
   const data = await getAllKegiatan();
   const today = new Date().toISOString().slice(0, 10);

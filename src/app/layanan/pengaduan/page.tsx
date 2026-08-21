@@ -3,6 +3,10 @@ import { getAduanMasyarakatPublik } from "@/lib/data/layanan";
 import { formatTanggalDariTimestamp } from "@/lib/format";
 import { StatusBadge } from "@/components/layanan/status-badge";
 
+// Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
+// catatan di src/app/data/geospasial/page.tsx.
+export const dynamic = "force-dynamic";
+
 export default async function Pengaduan() {
   const adminUrl = process.env.ADMIN_URL ?? "http://localhost:3000/";
   const aduan = await getAduanMasyarakatPublik();

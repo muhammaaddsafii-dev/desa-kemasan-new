@@ -12,6 +12,10 @@ import { formatTanggalHari, formatTanggalPanjang, stripHtml } from "@/lib/format
 import { GeospasialMap } from "@/components/geospasial-map";
 import { SafeImage } from "@/components/safe-image";
 
+// Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
+// catatan di src/app/data/geospasial/page.tsx.
+export const dynamic = "force-dynamic";
+
 const quickLinks = [
   { icon: FileText, label: "Surat Online", desc: "Ajukan surat secara digital", to: "/layanan/surat-online", color: "bg-primary" },
   { icon: MessageSquareWarning, label: "Pengaduan", desc: "Laporkan keluhan Anda", to: "/layanan/pengaduan", color: "bg-secondary" },

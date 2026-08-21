@@ -7,6 +7,10 @@ function toJudulSurat(type: string): string {
   return type.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+// Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
+// catatan di src/app/data/geospasial/page.tsx.
+export const dynamic = "force-dynamic";
+
 export default async function SuratOnline() {
   const adminUrl = process.env.ADMIN_URL ?? "http://localhost:3000/";
   const permohonan = await getPermohonanSuratPublik();

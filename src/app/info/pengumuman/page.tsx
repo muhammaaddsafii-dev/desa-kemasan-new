@@ -5,6 +5,10 @@ import { getAllPengumuman } from "@/lib/data/informasi";
 import { formatTanggalPanjang } from "@/lib/format";
 import { SafeImage } from "@/components/safe-image";
 
+// Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
+// catatan di src/app/data/geospasial/page.tsx.
+export const dynamic = "force-dynamic";
+
 export default async function Pengumuman() {
   const data = await getAllPengumuman();
 

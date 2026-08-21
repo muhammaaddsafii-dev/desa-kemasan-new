@@ -3,6 +3,10 @@ import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 import { getAssetsCurrent } from "@/lib/data/profil";
 import { toWhatsAppLink } from "@/lib/format";
 
+// Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
+// catatan di src/app/data/geospasial/page.tsx.
+export const dynamic = "force-dynamic";
+
 export default async function Kontak() {
   const assets = await getAssetsCurrent();
   const nama = assets?.nama ?? "Desa Sukamakmur";
