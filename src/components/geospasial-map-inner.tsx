@@ -14,6 +14,8 @@ import {
   MapLayerControl,
   type BaseLayerKey,
 } from "@/components/gis-map-layers";
+import { PhotoSlider } from "@/components/photo-slider";
+import { PopupDataTable } from "@/components/popup-data-table";
 import {
   DEFAULT_MAP_CENTER,
   DEFAULT_MAP_ZOOM,
@@ -22,6 +24,93 @@ import {
   type GeoMapPoint,
 } from "@/lib/constants/map";
 import type { GisFeatureCollection, GisLayerKey } from "@/lib/types/gis";
+
+function StatusBadge({ status }: { status: "pending" | "approved" | "rejected" }) {
+  const labels = { pending: "Menunggu", approved: "Disetujui", rejected: "Ditolak" };
+  const classes = {
+    pending: "bg-amber-100 text-amber-700",
+    approved: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+  };
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${classes[status]}`}>
+      {labels[status]}
+    </span>
+  );
+}
+
+function PopupContent({ point }: { point: GeoMapPoint }) {
+  if (point.category === "penduduk") {
+    return (
+      <>
+        <PopupDataTable
+          rows={[
+            { label: "Nama", value: point.title },
+            { label: "RT", value: point.rt ?? "-" },
+            { label: "RW", value: point.rw ?? "-" },
+          ]}
+        />
+        {point.foto.length > 0 && (
+          <>
+            <h3 className="mb-2 mt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Foto</h3>
+            <PhotoSlider photos={point.foto} alt={`Foto ${point.title}`} />
+          </>
+        )}
+      </>
+    );
+  }
+
+  if (point.category === "fasum") {
+    return (
+      <>
+        <PopupDataTable
+          rows={[
+            { label: "Nama Fasilitas", value: point.title },
+            { label: "Jenis", value: point.jenis },
+            { label: "Toponim", value: point.toponim || "-" },
+            { label: "Status", value: <StatusBadge status={point.status} /> },
+          ]}
+        />
+        {point.foto.length > 0 && (
+          <>
+            <h3 className="mb-2 mt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Foto</h3>
+            <PhotoSlider photos={point.foto} alt={`Foto ${point.title}`} />
+          </>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <PopupDataTable
+        rows={[
+          { label: "Nama Ruas Jalan", value: point.title },
+          { label: "Perkerasan", value: <span className="capitalize">{point.perkerasan}</span> },
+          { label: "Kondisi", value: <span className="capitalize">{point.kondisi}</span> },
+          { label: "Status", value: <StatusBadge status={point.status} /> },
+        ]}
+      />
+      {point.foto.length > 0 && (
+        <>
+          <h3 className="mb-2 mt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Foto</h3>
+          <PhotoSlider photos={point.foto} alt={`Foto ${point.title}`} />
+        </>
+      )}
+    </>
+  );
+}
+
+/** Popup content mounts (dan baru me-render foto-nya) hanya saat marker ini benar-benar dibuka,
+ * bukan otomatis untuk semua marker sekaligus - penting karena titik di peta publik bisa banyak. */
+function MarkerPopup({ point }: { point: GeoMapPoint }) {
+  const [opened, setOpened] = useState(false);
+  return (
+    <Popup maxHeight={260} eventHandlers={{ add: () => setOpened(true), remove: () => setOpened(false) }}>
+      <div className="min-w-[14rem] text-sm">{opened && <PopupContent point={point} />}</div>
+    </Popup>
+  );
+}
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -137,15 +226,7 @@ export default function GeospasialMapInner({
               .filter((p) => p.category === category)
               .map((point) => (
                 <Marker key={point.id} position={[point.lat, point.lng]} icon={icons[category]}>
-                  <Popup>
-                    <div className="text-sm">
-                      <p className="font-semibold text-foreground">{point.title}</p>
-                      {point.subtitle && <p className="text-muted-foreground">{point.subtitle}</p>}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {GEO_CATEGORY_CONFIG[category].label}
-                      </p>
-                    </div>
-                  </Popup>
+                  <MarkerPopup point={point} />
                 </Marker>
               ));
           })}

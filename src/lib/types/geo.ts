@@ -51,8 +51,14 @@ export interface GeoPoint {
   coordinates: [number, number];
 }
 
+export interface FotoPenduduk {
+  id: string;
+  penduduk: string;
+  file: string;
+}
+
 /**
- * Data penduduk versi publik - hanya titik lokasi, tanpa NIK/data pribadi
+ * Data penduduk versi publik - hanya titik lokasi + foto, tanpa NIK/data pribadi lain
  * (lihat PendudukPublicSerializer di backend).
  */
 export interface PendudukPublic {
@@ -62,4 +68,5 @@ export interface PendudukPublic {
   rt: string | null;
   rw: string | null;
   geom: GeoPoint | null;
+  foto_penduduk: FotoPenduduk[];
 }

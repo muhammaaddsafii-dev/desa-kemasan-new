@@ -46,27 +46,37 @@ export async function getCombinedGeoPoints(): Promise<GeoMapPoint[]> {
         lng: p.geom.coordinates[0],
         category: "penduduk" as const,
         title: p.nama,
-        subtitle: [p.rt && `RT ${p.rt}`, p.rw && `RW ${p.rw}`].filter(Boolean).join(" / ") || undefined,
+        rt: p.rt,
+        rw: p.rw,
+        foto: p.foto_penduduk,
       })),
+    // Peta publik cuma menampilkan data yang sudah di-approve - data pending/rejected belum
+    // terverifikasi dan tidak seharusnya tampil di halaman publik.
     ...fasumList
-      .filter((f): f is typeof f & { latitude: number; longitude: number } => f.latitude !== null && f.longitude !== null)
+      .filter((f): f is typeof f & { latitude: number; longitude: number } => f.latitude !== null && f.longitude !== null && f.status === "approved")
       .map((f) => ({
         id: `fasum-${f.id}`,
         lat: f.latitude,
         lng: f.longitude,
         category: "fasum" as const,
         title: f.objek,
-        subtitle: f.jenis,
+        jenis: f.jenis,
+        toponim: f.toponim,
+        status: f.status,
+        foto: f.foto_fasum,
       })),
     ...jalanList
-      .filter((j): j is typeof j & { latitude: number; longitude: number } => j.latitude !== null && j.longitude !== null)
+      .filter((j): j is typeof j & { latitude: number; longitude: number } => j.latitude !== null && j.longitude !== null && j.status === "approved")
       .map((j) => ({
         id: `jalan-${j.id}`,
         lat: j.latitude,
         lng: j.longitude,
         category: "jalan" as const,
         title: j.nama,
-        subtitle: `Kondisi: ${j.kondisi}`,
+        perkerasan: j.perkerasan,
+        kondisi: j.kondisi,
+        status: j.status,
+        foto: j.foto_kondisi_jalan,
       })),
   ];
 }
