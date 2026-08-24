@@ -1,5 +1,10 @@
 export type ApprovalStatus = "pending" | "approved" | "rejected";
 
+export interface GeoPoint {
+  type: "Point";
+  coordinates: [number, number];
+}
+
 export interface FotoFasum {
   id: string;
   fasum: string;
@@ -14,8 +19,7 @@ export interface Fasum {
   toponim: string | null;
   sumber: string | null;
   keterangan: string | null;
-  latitude: number | null;
-  longitude: number | null;
+  geom: GeoPoint | null;
   status: ApprovalStatus;
   foto_fasum: FotoFasum[];
   created_at: string;
@@ -38,17 +42,11 @@ export interface KondisiJalan {
   perkerasan: PerkerasanJalan;
   kondisi: KondisiJalanTingkat;
   sumber: string | null;
-  latitude: number | null;
-  longitude: number | null;
+  geom: GeoPoint | null;
   status: ApprovalStatus;
   foto_kondisi_jalan: FotoKondisiJalan[];
   created_at: string;
   updated_at: string;
-}
-
-export interface GeoPoint {
-  type: "Point";
-  coordinates: [number, number];
 }
 
 export interface FotoPenduduk {

@@ -43,11 +43,11 @@ export async function getCombinedGeoPoints(): Promise<GeoMapPoint[]> {
     // Peta publik cuma menampilkan data yang sudah di-approve - data pending/rejected belum
     // terverifikasi dan tidak seharusnya tampil di halaman publik.
     ...fasumList
-      .filter((f): f is typeof f & { latitude: number; longitude: number } => f.latitude !== null && f.longitude !== null && f.status === "approved")
+      .filter((f): f is typeof f & { geom: NonNullable<typeof f.geom> } => f.geom !== null && f.status === "approved")
       .map((f) => ({
         id: `fasum-${f.id}`,
-        lat: f.latitude,
-        lng: f.longitude,
+        lat: f.geom.coordinates[1],
+        lng: f.geom.coordinates[0],
         category: "fasum" as const,
         title: f.objek,
         jenis: f.jenis,
@@ -56,11 +56,11 @@ export async function getCombinedGeoPoints(): Promise<GeoMapPoint[]> {
         foto: f.foto_fasum,
       })),
     ...jalanList
-      .filter((j): j is typeof j & { latitude: number; longitude: number } => j.latitude !== null && j.longitude !== null && j.status === "approved")
+      .filter((j): j is typeof j & { geom: NonNullable<typeof j.geom> } => j.geom !== null && j.status === "approved")
       .map((j) => ({
         id: `jalan-${j.id}`,
-        lat: j.latitude,
-        lng: j.longitude,
+        lat: j.geom.coordinates[1],
+        lng: j.geom.coordinates[0],
         category: "jalan" as const,
         title: j.nama,
         perkerasan: j.perkerasan,
