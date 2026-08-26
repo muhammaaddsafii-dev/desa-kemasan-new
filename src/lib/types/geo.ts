@@ -14,7 +14,8 @@ export interface FotoFasum {
 export interface Fasum {
   id: string;
   submitted_by: string | null;
-  jenis: string;
+  jenis_fasum: string;
+  jenis_fasum_nama: string;
   objek: string;
   toponim: string | null;
   sumber: string | null;

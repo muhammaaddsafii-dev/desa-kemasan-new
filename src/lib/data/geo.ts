@@ -50,7 +50,7 @@ export async function getCombinedGeoPoints(): Promise<GeoMapPoint[]> {
         lng: f.geom.coordinates[0],
         category: "fasum" as const,
         title: f.objek,
-        jenis: f.jenis,
+        jenis: f.jenis_fasum_nama,
         toponim: f.toponim,
         status: f.status,
         foto: f.foto_fasum,
