@@ -41,7 +41,7 @@ export function PhotoSlider({ photos, alt }: { photos: Photo[]; alt: string }) {
   );
 }
 
-function PhotoLightbox({
+export function PhotoLightbox({
   photos,
   alt,
   index,

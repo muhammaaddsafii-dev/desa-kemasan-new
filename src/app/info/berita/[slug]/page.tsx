@@ -4,7 +4,7 @@ import { ArrowLeft, Calendar } from "lucide-react";
 
 import { getBeritaBySlug } from "@/lib/data/informasi";
 import { formatTanggalPanjang } from "@/lib/format";
-import { SafeImage } from "@/components/safe-image";
+import { DetailPhotoGallery } from "@/components/detail-photo-gallery";
 
 export default async function BeritaDetail({ params }: { params: { slug: string } }) {
   const berita = await getBeritaBySlug(params.slug);
@@ -29,15 +29,7 @@ export default async function BeritaDetail({ params }: { params: { slug: string 
             <ArrowLeft className="w-4 h-4" /> Kembali ke Berita
           </Link>
 
-          {berita.image_cover && (
-            <SafeImage
-              src={berita.image_cover}
-              alt={berita.title}
-              className="w-full h-64 md:h-96 object-cover rounded-xl mb-8"
-              fallbackClassName="hidden"
-              sizes="(min-width: 1024px) 896px, 100vw"
-            />
-          )}
+          <DetailPhotoGallery cover={berita.image_cover} coverAlt={berita.title} photos={[]} photosAlt={berita.title} />
 
           <div
             className="prose prose-sm sm:prose-base max-w-none prose-headings:text-foreground prose-p:text-muted-foreground"
@@ -45,21 +37,13 @@ export default async function BeritaDetail({ params }: { params: { slug: string 
           />
 
           {berita.foto_berita.length > 0 && (
-            <div className="mt-10">
-              <h2 className="text-lg font-semibold text-foreground mb-4">Galeri Foto</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {berita.foto_berita.map((foto) => (
-                  <SafeImage
-                    key={foto.id}
-                    src={foto.file}
-                    alt={berita.title}
-                    className="w-full h-40 object-cover rounded-lg card-village"
-                    fallbackClassName="hidden"
-                    sizes="(min-width: 768px) 33vw, 50vw"
-                  />
-                ))}
-              </div>
-            </div>
+            <DetailPhotoGallery
+              cover={null}
+              coverAlt={berita.title}
+              photos={berita.foto_berita}
+              photosAlt={berita.title}
+              galleryClassName="mt-10"
+            />
           )}
         </div>
       </section>

@@ -197,15 +197,31 @@ export default async function Beranda() {
                 {pengumuman.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">Belum ada pengumuman.</p>
                 )}
-                {pengumuman.map((p) => (
-                  <Link key={p.id} href={`/info/pengumuman/${p.id}`} className="card-village p-4 flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full mt-2 shrink-0 bg-muted-foreground/30" />
-                    <div>
-                      <h4 className="font-medium text-foreground">{p.judul}</h4>
-                      <span className="text-xs text-muted-foreground">{formatTanggalPanjang(p.date)}</span>
-                    </div>
-                  </Link>
-                ))}
+                {pengumuman.map((p, index) => {
+                  const isNewest = index === 0;
+                  return (
+                    <Link
+                      key={p.id}
+                      href={`/info/pengumuman/${p.id}`}
+                      className={`card-village p-4 flex items-start gap-3 ${
+                        isNewest ? "border-2 border-primary bg-primary/5 shadow-md" : ""
+                      }`}
+                    >
+                      <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${isNewest ? "bg-primary" : "bg-muted-foreground/30"}`} />
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="font-medium text-foreground">{p.judul}</h4>
+                          {isNewest && (
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground shrink-0">
+                              Terbaru
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground">{formatTanggalPanjang(p.date)}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
               <Link href="/info/pengumuman" className="inline-flex items-center gap-1 text-primary font-semibold mt-4 hover:underline">
                 Semua Pengumuman <ArrowRight className="w-4 h-4" />
@@ -220,10 +236,17 @@ export default async function Beranda() {
                 {kegiatan.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">Belum ada data kegiatan.</p>
                 )}
-                {kegiatan.map((k) => {
+                {kegiatan.map((k, index) => {
                   const isPast = k.date < today;
+                  const isNewest = index === 0;
                   return (
-                    <Link key={k.id} href={`/info/kegiatan/${k.slug}`} className="card-village p-5 flex items-start gap-4">
+                    <Link
+                      key={k.id}
+                      href={`/info/kegiatan/${k.slug}`}
+                      className={`card-village p-5 flex items-start gap-4 ${
+                        isNewest ? "border-2 border-primary bg-primary/5 shadow-md" : ""
+                      }`}
+                    >
                       <div className="text-center shrink-0">
                         <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${isPast ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>
                           <Calendar className="w-4 h-4 mb-0.5" />
@@ -233,6 +256,11 @@ export default async function Beranda() {
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold text-foreground">{k.title}</h4>
+                          {isNewest && (
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground shrink-0">
+                              Terbaru
+                            </span>
+                          )}
                           {isPast && (
                             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">Selesai</span>
                           )}

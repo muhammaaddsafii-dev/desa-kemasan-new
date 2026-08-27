@@ -4,7 +4,7 @@ import { ArrowLeft, Calendar } from "lucide-react";
 
 import { getKegiatanBySlug } from "@/lib/data/informasi";
 import { formatTanggalPanjang } from "@/lib/format";
-import { SafeImage } from "@/components/safe-image";
+import { DetailPhotoGallery } from "@/components/detail-photo-gallery";
 
 export default async function KegiatanDetail({ params }: { params: { slug: string } }) {
   const kegiatan = await getKegiatanBySlug(params.slug);
@@ -37,32 +37,23 @@ export default async function KegiatanDetail({ params }: { params: { slug: strin
             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary/10 text-secondary capitalize">{kegiatan.category}</span>
           </div>
 
-          {kegiatan.image_cover && (
-            <SafeImage
-              src={kegiatan.image_cover}
-              alt={kegiatan.title}
-              className="w-full h-64 md:h-96 object-cover rounded-xl mb-8"
-              fallbackClassName="hidden"
-              sizes="(min-width: 1024px) 896px, 100vw"
+          <DetailPhotoGallery cover={kegiatan.image_cover} coverAlt={kegiatan.title} photos={[]} photosAlt={kegiatan.title} />
+
+          {kegiatan.deskripsi && (
+            <div
+              className="prose prose-sm sm:prose-base max-w-none prose-headings:text-foreground prose-p:text-muted-foreground mb-8"
+              dangerouslySetInnerHTML={{ __html: kegiatan.deskripsi }}
             />
           )}
 
           {kegiatan.foto_kegiatan.length > 0 && (
-            <div className="mt-2">
-              <h2 className="text-lg font-semibold text-foreground mb-4">Galeri Foto</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {kegiatan.foto_kegiatan.map((foto) => (
-                  <SafeImage
-                    key={foto.id}
-                    src={foto.file}
-                    alt={kegiatan.title}
-                    className="w-full h-40 object-cover rounded-lg card-village"
-                    fallbackClassName="hidden"
-                    sizes="(min-width: 768px) 33vw, 50vw"
-                  />
-                ))}
-              </div>
-            </div>
+            <DetailPhotoGallery
+              cover={null}
+              coverAlt={kegiatan.title}
+              photos={kegiatan.foto_kegiatan}
+              photosAlt={kegiatan.title}
+              galleryClassName="mt-2"
+            />
           )}
         </div>
       </section>

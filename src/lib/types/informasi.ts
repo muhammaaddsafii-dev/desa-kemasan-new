@@ -31,6 +31,7 @@ export interface Kegiatan {
   category: KegiatanCategory;
   image_cover: string | null;
   date: string;
+  deskripsi: string | null;
   foto_kegiatan: FotoKegiatan[];
   created_at: string;
   updated_at: string;
@@ -42,12 +43,20 @@ export interface FotoPengumuman {
   file: string;
 }
 
+export interface DokumenPengumuman {
+  id: string;
+  pengumuman: string;
+  file: string;
+  nama_file: string | null;
+}
+
 export interface Pengumuman {
   id: string;
   judul: string;
   date: string;
   isi_pengumuman: string;
   foto_pengumuman: FotoPengumuman[];
+  dokumen_pengumuman: DokumenPengumuman[];
   created_at: string;
   updated_at: string;
 }

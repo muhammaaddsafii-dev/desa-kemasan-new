@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ImageIcon } from "lucide-react";
 
 import { getAllPengumuman } from "@/lib/data/informasi";
-import { formatTanggalPanjang } from "@/lib/format";
+import { formatTanggalPanjang, stripHtml } from "@/lib/format";
 import { SafeImage } from "@/components/safe-image";
 
 // Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
@@ -49,7 +49,7 @@ export default async function Pengumuman() {
                     )}
                   </div>
                   <h3 className="font-semibold text-foreground mb-1">{p.judul}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{p.isi_pengumuman}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{stripHtml(p.isi_pengumuman)}</p>
                 </div>
               </Link>
             ))}
