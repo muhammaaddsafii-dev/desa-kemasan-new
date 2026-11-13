@@ -36,7 +36,7 @@ const Footer = async () => {
             <ul className="space-y-2.5 text-sm opacity-80">
               <li><Link href="/" className="hover:opacity-100 transition-opacity">Beranda</Link></li>
               <li><Link href="/profil/tentang" className="hover:opacity-100 transition-opacity">Profil Desa</Link></li>
-              <li><Link href="/info/berita" className="hover:opacity-100 transition-opacity">Berita & Info</Link></li>
+              {/* <li><Link href="/info/berita" className="hover:opacity-100 transition-opacity">Berita & Info</Link></li> */}
               <li><Link href="/data/statistik-kependudukan" className="hover:opacity-100 transition-opacity">Data Desa</Link></li>
               <li><Link href="/layanan/surat-online" className="hover:opacity-100 transition-opacity">Layanan Publik</Link></li>
             </ul>

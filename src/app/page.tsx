@@ -1,14 +1,14 @@
 import Link from "next/link";
 import {
-  FileText, MessageSquareWarning, BarChart3, Newspaper,
+  FileText, MessageSquareWarning, BarChart3, // Newspaper,
   Users, Home, MapPin, Ruler, Calendar, ArrowRight,
   Phone, Mail
 } from "lucide-react";
 
-import { getBeritaList, getKegiatanList, getPengumumanList } from "@/lib/data/informasi";
+import { /* getBeritaList, */ getKegiatanList, getPengumumanList } from "@/lib/data/informasi";
 import { getCombinedGeoPoints } from "@/lib/data/geo";
 import { getAssetsCurrent } from "@/lib/data/profil";
-import { formatTanggalHari, formatTanggalPanjang, stripHtml } from "@/lib/format";
+import { formatTanggalHari, formatTanggalPanjang /* , stripHtml */ } from "@/lib/format";
 import { GeospasialMap } from "@/components/geospasial-map";
 import { SafeImage } from "@/components/safe-image";
 
@@ -20,7 +20,7 @@ const quickLinks = [
   { icon: FileText, label: "Surat Online", desc: "Ajukan surat secara digital", to: "/layanan/surat-online", color: "bg-primary" },
   { icon: MessageSquareWarning, label: "Pengaduan", desc: "Laporkan keluhan Anda", to: "/layanan/pengaduan", color: "bg-secondary" },
   { icon: BarChart3, label: "Statistik", desc: "Data kependudukan desa", to: "/data/statistik-kependudukan", color: "bg-accent" },
-  { icon: Newspaper, label: "Berita", desc: "Berita terbaru desa", to: "/info/berita", color: "bg-primary" },
+  // { icon: Newspaper, label: "Berita", desc: "Berita terbaru desa", to: "/info/berita", color: "bg-primary" },
 ];
 
 const stats = [
@@ -31,8 +31,8 @@ const stats = [
 ];
 
 export default async function Beranda() {
-  const [beritaRes, pengumumanRes, kegiatanRes, geoPoints, assets] = await Promise.all([
-    getBeritaList({ ordering: "-published_at" }),
+  const [/* beritaRes, */ pengumumanRes, kegiatanRes, geoPoints, assets] = await Promise.all([
+    // getBeritaList({ ordering: "-published_at" }),
     getPengumumanList({ ordering: "-date" }),
     getKegiatanList({ ordering: "date" }),
     getCombinedGeoPoints(),
@@ -40,7 +40,7 @@ export default async function Beranda() {
   ]);
 
   const nama = assets?.nama ?? "Desa Sukamakmur";
-  const berita = beritaRes.results.slice(0, 3);
+  // const berita = beritaRes.results.slice(0, 3);
   const pengumuman = pengumumanRes.results.slice(0, 4);
 
   // Prioritaskan kegiatan mendatang; kalau tidak ada, tampilkan kegiatan terakhir yang sudah lewat
@@ -89,7 +89,7 @@ export default async function Beranda() {
       {/* Quick Access */}
       <section className="-mt-16 relative z-10">
         <div className="container-village">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {quickLinks.map((q) => (
               <Link key={q.label} href={q.to} className="card-village p-5 flex items-start gap-4 group">
                 <div className={`w-12 h-12 rounded-xl ${q.color} flex items-center justify-center shrink-0 text-primary-foreground group-hover:scale-110 transition-transform`}>
@@ -139,7 +139,7 @@ export default async function Beranda() {
         </div>
       </section>
 
-      {/* Berita Terbaru */}
+      {/* Berita Terbaru - dinonaktifkan sementara
       <section className="section-padding bg-muted/50">
         <div className="container-village">
           <div className="flex items-end justify-between mb-10">
@@ -185,6 +185,7 @@ export default async function Beranda() {
           </div>
         </div>
       </section>
+      */}
 
       {/* Pengumuman */}
       <section className="section-padding">
