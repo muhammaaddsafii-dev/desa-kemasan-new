@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
     label: "Info Desa",
     children: [
       { label: "Pengumuman", to: "/info/pengumuman" },
-      { label: "Berita", to: "/info/berita" },
+      // { label: "Berita", to: "/info/berita" },
       { label: "Kegiatan", to: "/info/kegiatan" },
     ],
   },
