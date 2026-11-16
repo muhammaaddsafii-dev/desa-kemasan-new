@@ -26,7 +26,7 @@ const expenseData = [
   { name: "Lainnya", value: 8 },
 ];
 
-const COLORS = ["hsl(152,60%,32%)", "hsl(200,50%,40%)", "hsl(38,85%,52%)", "hsl(280,50%,55%)", "hsl(0,0%,70%)"];
+const COLORS = ["hsl(359,61%,39%)", "hsl(200,50%,40%)", "hsl(38,85%,52%)", "hsl(280,50%,55%)", "hsl(0,0%,70%)"];
 
 export function StatistikKeuanganContent({ nama }: { nama: string }) {
   return (
@@ -60,11 +60,11 @@ export function StatistikKeuanganContent({ nama }: { nama: string }) {
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={incomeData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(150,15%,88%)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(15,15%,88%)" />
                     <XAxis type="number" fontSize={12} />
                     <YAxis dataKey="name" type="category" fontSize={12} width={90} />
                     <Tooltip />
-                    <Bar dataKey="value" fill="hsl(152,60%,32%)" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="value" fill="hsl(359,61%,39%)" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

@@ -4,7 +4,7 @@ import { Users, Home, UserCheck, HeartPulse, Baby } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import type { StatistikPenduduk } from "@/lib/types/penduduk";
 
-const COLORS = ["hsl(152,60%,32%)", "hsl(200,50%,40%)", "hsl(38,85%,52%)", "hsl(280,50%,55%)", "hsl(0,0%,70%)", "hsl(20,70%,55%)"];
+const COLORS = ["hsl(359,61%,39%)", "hsl(200,50%,40%)", "hsl(38,85%,52%)", "hsl(280,50%,55%)", "hsl(0,0%,70%)", "hsl(20,70%,55%)"];
 
 function formatAngka(n: number) {
   return n.toLocaleString("id-ID");
@@ -66,7 +66,7 @@ export function StatistikKependudukanContent({ nama, statistik }: { nama: string
                   <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={statistik.piramida_usia}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(150,15%,88%)" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(15,15%,88%)" />
                         <XAxis dataKey="range" fontSize={12} />
                         <YAxis fontSize={12} />
                         <Tooltip />

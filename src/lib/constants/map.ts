@@ -6,8 +6,8 @@ export const DEFAULT_MAP_ZOOM = 15;
 export type GeoMapCategory = "penduduk" | "fasum" | "jalan";
 
 export const GEO_CATEGORY_CONFIG: Record<GeoMapCategory, { label: string; color: string }> = {
-  penduduk: { label: "Penduduk", color: "#dc2626" },
-  fasum: { label: "Fasilitas Umum", color: "hsl(152 60% 32%)" },
+  penduduk: { label: "Penduduk", color: "#2563eb" },
+  fasum: { label: "Fasilitas Umum", color: "hsl(359 61% 39%)" },
   jalan: { label: "Kondisi Jalan", color: "hsl(38 85% 52%)" },
 };
 
