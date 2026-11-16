@@ -56,15 +56,18 @@ const MARKER_CATEGORY_ICON: Record<GeoMapCategory, string> = {
   jalan: "edit_road",
 };
 
-export function createCategoryIcon(category: GeoMapCategory): L.DivIcon {
-  const color = GEO_CATEGORY_CONFIG[category].color;
+export function createCategoryIcon(category: GeoMapCategory, colorOverride?: string): L.DivIcon {
+  const color = colorOverride ?? GEO_CATEGORY_CONFIG[category].color;
   const icon = MARKER_CATEGORY_ICON[category];
+  // Bentuk berbeda per kategori supaya terbaca tanpa bergantung pada warna: bulat (penduduk),
+  // bulat dengan ikon gedung (fasum), kotak membulat (ruas jalan).
+  const radius = category === "jalan" ? "7px" : "50%";
   return L.divIcon({
     className: "custom-marker-icon",
-    html: `<div style="background:${color};width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.4);"><span class="material-symbols-outlined" style="color:#fff;font-size:16px;">${icon}</span></div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-    popupAnchor: [0, -14],
+    html: `<div style="background:${color};width:26px;height:26px;border-radius:${radius};display:flex;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.45);"><span class="material-symbols-outlined" style="color:#fff;font-size:15px;">${icon}</span></div>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
+    popupAnchor: [0, -12],
   });
 }
 

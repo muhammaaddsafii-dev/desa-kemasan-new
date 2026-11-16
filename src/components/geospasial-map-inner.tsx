@@ -14,100 +14,33 @@ import {
   MapLayerControl,
   type BaseLayerKey,
 } from "@/components/gis-map-layers";
-import { PhotoSlider } from "@/components/photo-slider";
-import { PopupDataTable } from "@/components/popup-data-table";
+import { GeoPopupContent } from "@/components/geo-popup";
 import {
   DEFAULT_MAP_CENTER,
   DEFAULT_MAP_ZOOM,
   GEO_CATEGORY_CONFIG,
+  KONDISI_JALAN_CLASSES,
+  geoFilterKey,
+  type GeoFilterKey,
   type GeoMapCategory,
   type GeoMapPoint,
 } from "@/lib/constants/map";
 import type { GisFeatureCollection, GisLayerKey } from "@/lib/types/gis";
-
-function StatusBadge({ status }: { status: "pending" | "approved" | "rejected" }) {
-  const labels = { pending: "Menunggu", approved: "Disetujui", rejected: "Ditolak" };
-  const classes = {
-    pending: "bg-amber-100 text-amber-700",
-    approved: "bg-green-100 text-green-700",
-    rejected: "bg-red-100 text-red-700",
-  };
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${classes[status]}`}>
-      {labels[status]}
-    </span>
-  );
-}
-
-function PopupContent({ point }: { point: GeoMapPoint }) {
-  if (point.category === "penduduk") {
-    return (
-      <>
-        <PopupDataTable
-          rows={[
-            { label: "Nama", value: point.title },
-            { label: "RT", value: point.rt ?? "-" },
-            { label: "RW", value: point.rw ?? "-" },
-          ]}
-        />
-        {point.foto.length > 0 && (
-          <>
-            <h3 className="mb-2 mt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Foto</h3>
-            <PhotoSlider photos={point.foto} alt={`Foto ${point.title}`} />
-          </>
-        )}
-      </>
-    );
-  }
-
-  if (point.category === "fasum") {
-    return (
-      <>
-        <PopupDataTable
-          rows={[
-            { label: "Nama Fasilitas", value: point.title },
-            { label: "Jenis", value: point.jenis },
-            { label: "Toponim", value: point.toponim || "-" },
-            { label: "Status", value: <StatusBadge status={point.status} /> },
-          ]}
-        />
-        {point.foto.length > 0 && (
-          <>
-            <h3 className="mb-2 mt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Foto</h3>
-            <PhotoSlider photos={point.foto} alt={`Foto ${point.title}`} />
-          </>
-        )}
-      </>
-    );
-  }
-
-  return (
-    <>
-      <PopupDataTable
-        rows={[
-          { label: "Nama Ruas Jalan", value: point.title },
-          { label: "Perkerasan", value: <span className="capitalize">{point.perkerasan}</span> },
-          { label: "Kondisi", value: <span className="capitalize">{point.kondisi}</span> },
-          { label: "Status", value: <StatusBadge status={point.status} /> },
-        ]}
-      />
-      {point.foto.length > 0 && (
-        <>
-          <h3 className="mb-2 mt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Foto</h3>
-          <PhotoSlider photos={point.foto} alt={`Foto ${point.title}`} />
-        </>
-      )}
-    </>
-  );
-}
 
 /** Popup content mounts (dan baru me-render foto-nya) hanya saat marker ini benar-benar dibuka,
  * bukan otomatis untuk semua marker sekaligus - penting karena titik di peta publik bisa banyak. */
 function MarkerPopup({ point }: { point: GeoMapPoint }) {
   const [opened, setOpened] = useState(false);
   return (
-    <Popup maxHeight={260} eventHandlers={{ add: () => setOpened(true), remove: () => setOpened(false) }}>
-      <div className="min-w-[14rem] text-sm">{opened && <PopupContent point={point} />}</div>
+    <Popup
+      className="geo-popup"
+      minWidth={280}
+      maxWidth={280}
+      maxHeight={440}
+      autoPanPadding={[24, 24]}
+      eventHandlers={{ add: () => setOpened(true), remove: () => setOpened(false) }}
+    >
+      {opened && <GeoPopupContent point={point} />}
     </Popup>
   );
 }
@@ -135,7 +68,9 @@ function FitBoundsController({ bounds, ready, onDone }: { bounds: L.LatLngBounds
 
 interface GeospasialMapInnerProps {
   points: GeoMapPoint[];
-  visibleCategories: Set<GeoMapCategory>;
+  visibleKeys: Set<GeoFilterKey>;
+  /** Berubah (mis. ganti tab) -> peta terbang ke titik yang sedang tampil. */
+  fitKey?: string;
   gisLayers?: Partial<Record<GisLayerKey, GisFeatureCollection>>;
   visibleGisLayers?: Record<GisLayerKey, boolean>;
   loadingGisLayers?: Partial<Record<GisLayerKey, boolean>>;
@@ -144,23 +79,32 @@ interface GeospasialMapInnerProps {
 
 export default function GeospasialMapInner({
   points,
-  visibleCategories,
+  visibleKeys,
+  fitKey,
   gisLayers = {},
   visibleGisLayers,
   loadingGisLayers,
   onToggleGisLayer,
 }: GeospasialMapInnerProps) {
+  // Satu ikon per kunci filter (penduduk, fasum, dan tiap kelas kondisi jalan) - dibuat sekali, dipakai ulang.
   const icons = useMemo(() => {
-    const entries = (Object.keys(GEO_CATEGORY_CONFIG) as GeoMapCategory[]).map(
-      (category) => [category, createCategoryIcon(category)] as const,
-    );
-    return Object.fromEntries(entries) as Record<GeoMapCategory, L.DivIcon>;
+    const cache = new Map<GeoFilterKey, L.DivIcon>();
+    for (const category of Object.keys(GEO_CATEGORY_CONFIG) as GeoMapCategory[]) {
+      if (category === "jalan") {
+        for (const [key, { color }] of Object.entries(KONDISI_JALAN_CLASSES)) {
+          cache.set(`jalan:${key}` as GeoFilterKey, createCategoryIcon("jalan", color));
+        }
+      } else {
+        cache.set(category, createCategoryIcon(category));
+      }
+    }
+    return cache;
   }, []);
 
-  const visiblePoints = points.filter((p) => visibleCategories.has(p.category));
-  const categories = Object.keys(GEO_CATEGORY_CONFIG) as GeoMapCategory[];
+  const visiblePoints = points.filter((p) => visibleKeys.has(geoFilterKey(p)));
   const mapRef = useRef<L.Map | null>(null);
   const [fitted, setFitted] = useState(false);
+  const lastFitKey = useRef(fitKey);
   const [baseLayer, setBaseLayer] = useState<BaseLayerKey>("satelite");
   const baseLayerConfig = BASE_LAYER_CONFIG[baseLayer];
 
@@ -192,6 +136,16 @@ export default function GeospasialMapInner({
   const layersStillLoading = loadingGisLayers ? Object.values(loadingGisLayers).some(Boolean) : false;
   const readyToFit = bounds.isValid() && !layersStillLoading;
 
+  useEffect(() => {
+    if (lastFitKey.current === fitKey) return;
+    lastFitKey.current = fitKey;
+    const map = mapRef.current;
+    if (!map || visiblePoints.length === 0) return;
+    const b = L.latLngBounds(visiblePoints.map((p) => [p.lat, p.lng] as [number, number]));
+    map.flyToBounds(b, { padding: [32, 32], maxZoom: 16, duration: 0.8 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- hanya bereaksi pada pergantian fitKey
+  }, [fitKey]);
+
   return (
     <div className="relative isolate h-full w-full">
       <MapLayerControl
@@ -220,16 +174,11 @@ export default function GeospasialMapInner({
           />
           <GisLayers gisLayers={gisLayers} visibleLayers={visibleGisLayers} />
           {!fitted && <FitBoundsController bounds={bounds} ready={readyToFit} onDone={() => setFitted(true)} />}
-          {categories.flatMap((category) => {
-            if (!visibleCategories.has(category)) return [];
-            return points
-              .filter((p) => p.category === category)
-              .map((point) => (
-                <Marker key={point.id} position={[point.lat, point.lng]} icon={icons[category]}>
-                  <MarkerPopup point={point} />
-                </Marker>
-              ));
-          })}
+          {visiblePoints.map((point) => (
+            <Marker key={point.id} position={[point.lat, point.lng]} icon={icons.get(geoFilterKey(point))}>
+              <MarkerPopup point={point} />
+            </Marker>
+          ))}
           <MapInstanceCapture mapRef={mapRef} />
         </MapContainer>
       </div>

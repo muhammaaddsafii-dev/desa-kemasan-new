@@ -1,112 +1,131 @@
-import { MessageSquareWarning, Clock3, ShieldCheck, ArrowUpRight } from "lucide-react";
+import { CheckCircle2, Clock3, LogIn, PenLine, ShieldCheck, Lightbulb } from "lucide-react";
+
+import {
+  CtaLayanan,
+  LangkahLayanan,
+  LayananHero,
+  PertanyaanUmum,
+  RingkasanStatus,
+  type Langkah,
+} from "@/components/layanan/layanan-sections";
+import { PapanStatus, type PapanRow } from "@/components/layanan/papan-status";
 import { getAduanMasyarakatPublik } from "@/lib/data/layanan";
-import { formatTanggalDariTimestamp } from "@/lib/format";
-import { StatusBadge } from "@/components/layanan/status-badge";
 
 // Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
 // catatan di src/app/data/geospasial/page.tsx.
 export const dynamic = "force-dynamic";
 
+const langkah: Langkah[] = [
+  { icon: LogIn, title: "Masuk Portal Warga", desc: "Login dengan akun warga Anda di Portal Warga." },
+  { icon: PenLine, title: "Tulis Pengaduan", desc: "Ceritakan keluhan, masalah, atau usulan Anda dengan jelas." },
+  { icon: Clock3, title: "Ditindaklanjuti", desc: "Petugas desa memeriksa dan menindaklanjuti laporan Anda." },
+  { icon: CheckCircle2, title: "Pantau Hingga Selesai", desc: "Lihat perkembangannya langsung dari akun Anda." },
+];
+
+const tips = [
+  "Tulis perihal yang singkat dan jelas, mis. \"Lampu jalan RT 03 mati\".",
+  "Sebutkan lokasi sedetail mungkin (dusun, RT/RW, atau patokan).",
+  "Ceritakan kapan kejadiannya dan dampak yang dirasakan.",
+  "Lampirkan foto bila ada agar petugas lebih mudah memahami.",
+];
+
 export default async function Pengaduan() {
   const adminUrl = process.env.ADMIN_URL ?? "http://localhost:3000/";
   const aduan = await getAduanMasyarakatPublik();
 
+  const rows: PapanRow[] = aduan.map((a) => ({
+    kode: a.kode_lacak,
+    judul: a.subject,
+    tanggal: a.created_at,
+    status: a.status,
+  }));
+
   return (
     <>
-      <section className="gradient-primary text-primary-foreground py-16 md:py-20">
-        <div className="container-village">
-          <span className="text-sm font-medium opacity-80">Layanan &gt; Pengaduan</span>
-          <h1 className="text-3xl md:text-4xl font-bold mt-2">Pengaduan Masyarakat</h1>
-          <p className="mt-3 opacity-90 max-w-2xl">
-            Sekarang laporan atau pengaduan warga dapat disampaikan secara online tanpa perlu datang ke kantor desa.
-            Sampaikan aduan Anda, pantau tindak lanjutnya, melalui Portal Warga.
-          </p>
-          <a
-            href={adminUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary-foreground text-primary hover:opacity-90 transition-opacity"
-          >
-            Ajukan Pengaduan Sekarang
-            <ArrowUpRight className="w-4 h-4" />
-          </a>
-        </div>
-      </section>
+      <LayananHero
+        breadcrumb="Layanan > Pengaduan"
+        title="Pengaduan Masyarakat"
+        description="Sampaikan laporan atau pengaduan Anda secara online tanpa perlu datang ke kantor desa, lalu pantau tindak lanjutnya melalui Portal Warga."
+        ctaLabel="Ajukan Pengaduan Sekarang"
+        ctaHref={adminUrl}
+        poin={["Bisa disampaikan 24 jam", "Tindak lanjut dapat dipantau", "Identitas pelapor terlindungi"]}
+      />
 
       <section className="section-padding">
-        <div className="container-village">
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="card-village p-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-                <MessageSquareWarning className="w-5 h-5" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Sampaikan Kapan Saja</h3>
-              <p className="text-sm text-muted-foreground">
-                Laporkan keluhan, masalah, atau usulan Anda secara online, 24 jam melalui Portal Warga.
-              </p>
+        <div className="container-village space-y-14">
+          <LangkahLayanan
+            judul="Cara Menyampaikan Pengaduan"
+            deskripsi="Empat langkah sederhana untuk menyuarakan keluhan atau usulan Anda."
+            langkah={langkah}
+          />
+
+          <div>
+            <h2 className="mb-5 text-2xl font-bold text-foreground">Tindak Lanjut Pengaduan</h2>
+            <RingkasanStatus judul="Total Pengaduan" status={rows.map((r) => r.status)} />
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-5">
+            <div className="card-village p-6 lg:col-span-3">
+              <h3 className="flex items-center gap-2 font-semibold text-foreground">
+                <Lightbulb className="h-5 w-5 text-amber-500" />
+                Tips agar pengaduan cepat ditangani
+              </h3>
+              <ul className="mt-4 space-y-3">
+                {tips.map((t, i) => (
+                  <li key={t} className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700">
+                      {i + 1}
+                    </span>
+                    <span className="pt-0.5">{t}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="card-village p-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-                <Clock3 className="w-5 h-5" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Pantau Tindak Lanjut</h3>
-              <p className="text-sm text-muted-foreground">
-                Cek perkembangan aduan—dari diajukan, diproses, hingga selesai—langsung dari akun Anda.
-              </p>
-            </div>
-            <div className="card-village p-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Identitas Terlindungi</h3>
-              <p className="text-sm text-muted-foreground">
-                Identitas pelapor hanya dapat dilihat oleh Anda dan petugas desa yang berwenang.
+            <div className="card-village flex flex-col justify-center bg-green-50/60 p-6 lg:col-span-2">
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-700">
+                <ShieldCheck className="h-6 w-6" />
+              </span>
+              <h3 className="mt-4 font-semibold text-foreground">Identitas Terlindungi</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Identitas pelapor hanya dapat dilihat oleh Anda dan petugas desa yang berwenang. Papan status publik hanya menampilkan kode lacak dan perihal.
               </p>
             </div>
           </div>
 
-          <div className="card-village overflow-hidden">
-            <div className="p-5 border-b flex items-center justify-between flex-wrap gap-2">
-              <div>
-                <h3 className="font-semibold text-foreground">Status Pengaduan Terbaru</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Papan status publik — gunakan kode lacak untuk memeriksa pengaduan Anda di Portal Warga.
-                </p>
-              </div>
+          <div>
+            <div className="mb-5">
+              <h2 className="text-2xl font-bold text-foreground">Papan Status Pengaduan</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Papan status publik. Gunakan kode lacak untuk memeriksa pengaduan Anda di Portal Warga.
+              </p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Kode Lacak</th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Perihal</th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Tanggal Pengaduan</th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {aduan.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="p-6 text-center text-muted-foreground">
-                        Belum ada pengaduan yang tercatat.
-                      </td>
-                    </tr>
-                  ) : (
-                    aduan.map((a) => (
-                      <tr key={a.kode_lacak} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
-                        <td className="p-3 font-mono text-xs font-medium text-foreground">{a.kode_lacak}</td>
-                        <td className="p-3 text-foreground">{a.subject}</td>
-                        <td className="p-3 text-muted-foreground">{formatTanggalDariTimestamp(a.created_at)}</td>
-                        <td className="p-3">
-                          <StatusBadge status={a.status} />
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <PapanStatus rows={rows} judulKolom="Perihal" kosong="Belum ada pengaduan yang tercatat." />
           </div>
+
+          <PertanyaanUmum
+            judul="Pertanyaan Umum"
+            items={[
+              {
+                q: "Hal apa saja yang bisa saya adukan?",
+                a: "Keluhan, masalah, atau usulan terkait layanan dan lingkungan desa, misalnya fasilitas umum, kondisi jalan, atau pelayanan perangkat desa.",
+              },
+              {
+                q: "Bagaimana saya tahu pengaduan saya ditindaklanjuti?",
+                a: "Setiap pengaduan punya status (diajukan, diproses, selesai) yang dapat dipantau dari akun Anda. Kode lacaknya juga muncul di papan status halaman ini.",
+              },
+              {
+                q: "Apakah laporan saya bisa dilihat orang lain?",
+                a: "Papan status publik hanya menampilkan kode lacak, perihal, tanggal, dan status. Isi laporan dan identitas Anda hanya bisa dilihat oleh Anda dan petugas yang berwenang.",
+              },
+            ]}
+          />
+
+          <CtaLayanan
+            judul="Punya keluhan atau usulan?"
+            deskripsi="Sampaikan sekarang lewat Portal Warga. Suara Anda membantu desa menjadi lebih baik."
+            label="Buka Portal Warga"
+            href={adminUrl}
+          />
         </div>
       </section>
     </>

@@ -1,15 +1,23 @@
 import Link from "next/link";
 import {
-  FileText, MessageSquareWarning, BarChart3, // Newspaper,
-  Users, Home, MapPin, Ruler, Calendar, ArrowRight,
-  Phone, Mail
+  FileText,
+  MessageSquareWarning,
+  BarChart3,
+  // Newspaper,
+  Users,
+  Home,
+  MapPin,
+  Ruler,
+  ArrowRight,
 } from "lucide-react";
 
 import { /* getBeritaList, */ getKegiatanList, getPengumumanList } from "@/lib/data/informasi";
 import { getCombinedGeoPoints } from "@/lib/data/geo";
 import { getAssetsCurrent } from "@/lib/data/profil";
-import { formatTanggalHari, formatTanggalPanjang /* , stripHtml */ } from "@/lib/format";
+import { toWhatsAppLink } from "@/lib/format";
 import { GeospasialMap } from "@/components/geospasial-map";
+import { HomeInfoSection } from "@/components/home-info-section";
+import { HomeKontakSection } from "@/components/home-kontak-section";
 import { SafeImage } from "@/components/safe-image";
 
 // Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
@@ -187,100 +195,13 @@ export default async function Beranda() {
       </section>
       */}
 
-      {/* Pengumuman */}
-      <section className="section-padding">
-        <div className="container-village">
-          <div className="grid lg:grid-cols-2 gap-10">
-            <div>
-              <span className="text-sm font-semibold text-primary uppercase tracking-wider">Perhatian</span>
-              <h2 className="text-3xl font-bold mt-2 mb-6 text-foreground">Pengumuman Penting</h2>
-              <div className="space-y-3">
-                {pengumuman.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">Belum ada pengumuman.</p>
-                )}
-                {pengumuman.map((p, index) => {
-                  const isNewest = index === 0;
-                  return (
-                    <Link
-                      key={p.id}
-                      href={`/info/pengumuman/${p.id}`}
-                      className={`card-village p-4 flex items-start gap-3 ${
-                        isNewest ? "border-2 border-primary bg-primary/5 shadow-md" : ""
-                      }`}
-                    >
-                      <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${isNewest ? "bg-primary" : "bg-muted-foreground/30"}`} />
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="font-medium text-foreground">{p.judul}</h4>
-                          {isNewest && (
-                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground shrink-0">
-                              Terbaru
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-xs text-muted-foreground">{formatTanggalPanjang(p.date)}</span>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-              <Link href="/info/pengumuman" className="inline-flex items-center gap-1 text-primary font-semibold mt-4 hover:underline">
-                Semua Pengumuman <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            {/* Kegiatan */}
-            <div>
-              <span className="text-sm font-semibold text-primary uppercase tracking-wider">Agenda</span>
-              <h2 className="text-3xl font-bold mt-2 mb-6 text-foreground">Kegiatan Mendatang</h2>
-              <div className="space-y-4">
-                {kegiatan.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">Belum ada data kegiatan.</p>
-                )}
-                {kegiatan.map((k, index) => {
-                  const isPast = k.date < today;
-                  const isNewest = index === 0;
-                  return (
-                    <Link
-                      key={k.id}
-                      href={`/info/kegiatan/${k.slug}`}
-                      className={`card-village p-5 flex items-start gap-4 ${
-                        isNewest ? "border-2 border-primary bg-primary/5 shadow-md" : ""
-                      }`}
-                    >
-                      <div className="text-center shrink-0">
-                        <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center ${isPast ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>
-                          <Calendar className="w-4 h-4 mb-0.5" />
-                          <span className="text-xs font-bold">{formatTanggalHari(k.date)}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-foreground">{k.title}</h4>
-                          {isNewest && (
-                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground shrink-0">
-                              Terbaru
-                            </span>
-                          )}
-                          {isPast && (
-                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">Selesai</span>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {formatTanggalPanjang(k.date)} · {k.category === "internal" ? "Internal" : "Eksternal"}
-                        </p>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-              <Link href="/info/kegiatan" className="inline-flex items-center gap-1 text-primary font-semibold mt-4 hover:underline">
-                Semua Kegiatan <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Pengumuman & Kegiatan */}
+      <HomeInfoSection
+        pengumuman={pengumuman}
+        kegiatan={kegiatan}
+        today={today}
+        kegiatanLampau={upcomingKegiatan.length === 0}
+      />
 
       {/* Geospasial Preview */}
       <section className="section-padding bg-muted/50">
@@ -290,8 +211,8 @@ export default async function Beranda() {
             <h2 className="text-3xl font-bold mt-2 text-foreground">Data Geospasial Desa</h2>
             <p className="text-muted-foreground mt-2 max-w-xl mx-auto">Lihat peta wilayah, fasilitas umum, dan batas administratif {nama}.</p>
           </div>
-          <div className="card-village overflow-hidden p-4 md:p-6">
-            <GeospasialMap points={geoPoints} showGisLayers />
+          <div className="card-village overflow-hidden p-3 md:p-4">
+            <GeospasialMap points={geoPoints} showGisLayers mapClassName="h-[24rem] md:h-[34rem]" />
           </div>
           <div className="text-center mt-6">
             <Link href="/data/geospasial" className="inline-flex items-center gap-2 text-primary font-semibold hover:underline">
@@ -320,27 +241,14 @@ export default async function Beranda() {
       </section>
 
       {/* Kontak Singkat */}
-      <section className="section-padding bg-muted/50">
-        <div className="container-village">
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div className="card-village p-6">
-              <Phone className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-semibold text-foreground mb-1">Telepon</h3>
-              <p className="text-muted-foreground text-sm">{assets?.kontak ?? "(022) 123-4567"}</p>
-            </div>
-            <div className="card-village p-6">
-              <Mail className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-semibold text-foreground mb-1">Email</h3>
-              <p className="text-muted-foreground text-sm">{assets?.email ?? "desa@sukamakmur.desa.id"}</p>
-            </div>
-            <div className="card-village p-6">
-              <MapPin className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-semibold text-foreground mb-1">Alamat</h3>
-              <p className="text-muted-foreground text-sm">{assets?.lokasi ?? "Jl. Raya Sukamakmur No. 01, Bandung Barat"}</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeKontakSection
+        nama={nama}
+        lokasi={assets?.lokasi ?? "Jl. Raya Sukamakmur No. 01, Bandung Barat"}
+        kontak={assets?.kontak ?? "(022) 123-4567"}
+        email={assets?.email ?? "desa@sukamakmur.desa.id"}
+        waLink={toWhatsAppLink(assets?.kontak) ?? "https://wa.me/62221234567"}
+        gambar={assets?.file_hero_image || "/hero-desa.jpg"}
+      />
     </>
   );
 }

@@ -14,3 +14,13 @@ export interface AduanMasyarakatPublik {
   status: StatusPermohonan;
   created_at: string;
 }
+
+export interface Panduan {
+  id: string;
+  title: string;
+  slug: string;
+  /** URL file PDF (presigned, kedaluwarsa singkat - gunakan rute /layanan/panduan/[slug]/pdf untuk tautan yang selalu segar). */
+  file: string;
+  created_at: string;
+  updated_at: string;
+}

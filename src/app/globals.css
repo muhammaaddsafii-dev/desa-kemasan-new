@@ -133,6 +133,51 @@
   isolation: isolate;
 }
 
+/* Popup marker peta: tanpa padding bawaan Leaflet supaya foto bisa full-bleed, sudut lebih bulat. */
+.geo-popup .leaflet-popup-content-wrapper,
+.geo-popup .leaflet-popup-tip {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+.geo-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+.geo-popup .leaflet-popup-content {
+  margin: 0;
+  width: 280px !important;
+  line-height: 1.4;
+}
+.geo-popup .leaflet-popup-tip {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.geo-popup a.leaflet-popup-close-button {
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #374151;
+  font-size: 18px;
+  line-height: 1;
+  z-index: 5;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.geo-popup a.leaflet-popup-close-button:hover {
+  background: #fff;
+  color: #111827;
+}
+.geo-popup a.geo-popup-link {
+  color: hsl(var(--foreground));
+}
+
 .material-symbols-outlined {
   font-variation-settings:
     "FILL" 0,

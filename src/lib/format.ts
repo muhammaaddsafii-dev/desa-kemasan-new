@@ -47,3 +47,35 @@ export function toWhatsAppLink(phone: string | null | undefined): string | null 
   const normalized = digits.startsWith("0") ? `62${digits.slice(1)}` : digits;
   return `https://wa.me/${normalized}`;
 }
+
+/** "2026-07-13" -> "Senin, 13 Juli 2026" */
+export function formatHariTanggal(dateStr: string | null | undefined): string {
+  if (!dateStr) return "-";
+  const date = parseISO(dateStr);
+  if (!isValid(date)) return dateStr;
+  return format(date, "EEEE, d MMMM yyyy", { locale: id });
+}
+
+/** "2026-07-13" -> "Jul" (singkatan bulan untuk kartu kalender) */
+export function formatBulanSingkat(dateStr: string | null | undefined): string {
+  if (!dateStr) return "-";
+  const date = parseISO(dateStr);
+  if (!isValid(date)) return "-";
+  return format(date, "MMM", { locale: id });
+}
+
+/** Selisih hari kalender dari `fromStr` ke `dateStr` (positif = di masa depan). Keduanya "YYYY-MM-DD". */
+export function selisihHari(dateStr: string, fromStr: string): number {
+  const a = parseISO(dateStr);
+  const b = parseISO(fromStr);
+  if (!isValid(a) || !isValid(b)) return 0;
+  return Math.round((a.getTime() - b.getTime()) / 86_400_000);
+}
+
+/** "2026-07-13" -> "Juli 2026" (judul kelompok per bulan) */
+export function formatBulanTahun(dateStr: string | null | undefined): string {
+  if (!dateStr) return "-";
+  const date = parseISO(dateStr);
+  if (!isValid(date)) return "-";
+  return format(date, "MMMM yyyy", { locale: id });
+}

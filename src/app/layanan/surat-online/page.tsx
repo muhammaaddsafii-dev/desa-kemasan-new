@@ -1,118 +1,130 @@
-import { FileText, Clock3, ShieldCheck, ArrowUpRight } from "lucide-react";
+import { ClipboardList, Clock3, Download, FileText, LogIn } from "lucide-react";
+
+import {
+  CtaLayanan,
+  LangkahLayanan,
+  LayananHero,
+  PertanyaanUmum,
+  RingkasanStatus,
+  type Langkah,
+} from "@/components/layanan/layanan-sections";
+import { PapanStatus, type PapanRow } from "@/components/layanan/papan-status";
 import { getPermohonanSuratPublik } from "@/lib/data/layanan";
-import { formatTanggalDariTimestamp } from "@/lib/format";
-import { StatusBadge } from "@/components/layanan/status-badge";
 
 function toJudulSurat(type: string): string {
   return type.replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/** Papan status bersifat publik, jadi nama pemohon disamarkan: "Agus Salim (Pemohon 5)" -> "Agus S." */
+function samarkanNama(nama: string): string {
+  const [depan, ...sisa] = nama.replace(/\(.*?\)/g, "").trim().split(/\s+/).filter(Boolean);
+  if (!depan) return "Pemohon";
+  return [depan, ...sisa.map((kata) => `${kata.charAt(0).toUpperCase()}.`)].join(" ");
 }
 
 // Jangan di-prerender statis saat build (API_URL belum ke backend produksi saat itu) - lihat
 // catatan di src/app/data/geospasial/page.tsx.
 export const dynamic = "force-dynamic";
 
+const langkah: Langkah[] = [
+  { icon: LogIn, title: "Masuk Portal Warga", desc: "Login dengan akun warga Anda di Portal Warga." },
+  { icon: ClipboardList, title: "Isi Permohonan", desc: "Pilih jenis surat keterangan lalu lengkapi formulirnya." },
+  { icon: Clock3, title: "Pantau Prosesnya", desc: "Lihat status: diajukan, diproses, hingga selesai." },
+  { icon: Download, title: "Unduh Dokumen", desc: "Setelah selesai, dokumen dapat diunduh dari akun Anda." },
+];
+
 export default async function SuratOnline() {
   const adminUrl = process.env.ADMIN_URL ?? "http://localhost:3000/";
   const permohonan = await getPermohonanSuratPublik();
 
+  const rows: PapanRow[] = permohonan.map((p) => ({
+    kode: p.kode_lacak,
+    judul: toJudulSurat(p.type),
+    keterangan: `Pemohon: ${samarkanNama(p.nama_pemohon)}`,
+    tanggal: p.created_at,
+    status: p.status,
+  }));
+
+  // Jenis surat yang paling sering diajukan.
+  const perJenis = new Map<string, number>();
+  permohonan.forEach((p) => perJenis.set(toJudulSurat(p.type), (perJenis.get(toJudulSurat(p.type)) ?? 0) + 1));
+  const jenisPopuler = [...perJenis.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+
   return (
     <>
-      <section className="gradient-primary text-primary-foreground py-16 md:py-20">
-        <div className="container-village">
-          <span className="text-sm font-medium opacity-80">Layanan &gt; Surat Online</span>
-          <h1 className="text-3xl md:text-4xl font-bold mt-2">Pengajuan Surat Online</h1>
-          <p className="mt-3 opacity-90 max-w-2xl">
-            Sekarang permohonan surat keterangan dapat diajukan secara online tanpa perlu datang ke kantor desa.
-            Ajukan permohonan, pantau prosesnya, dan unduh dokumen setelah selesai melalui Portal Warga.
-          </p>
-          <a
-            href={adminUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary-foreground text-primary hover:opacity-90 transition-opacity"
-          >
-            Ajukan Surat Sekarang
-            <ArrowUpRight className="w-4 h-4" />
-          </a>
-        </div>
-      </section>
+      <LayananHero
+        breadcrumb="Layanan > Surat Online"
+        title="Pengajuan Surat Online"
+        description="Ajukan permohonan surat keterangan tanpa perlu datang ke kantor desa. Pantau prosesnya dan unduh dokumen setelah selesai melalui Portal Warga."
+        ctaLabel="Ajukan Surat Sekarang"
+        ctaHref={adminUrl}
+        poin={["Bisa diajukan 24 jam", "Status dapat dipantau", "Data pribadi terlindungi"]}
+      />
 
       <section className="section-padding">
-        <div className="container-village">
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="card-village p-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-                <FileText className="w-5 h-5" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Ajukan Kapan Saja</h3>
-              <p className="text-sm text-muted-foreground">
-                Isi formulir permohonan surat keterangan secara online, 24 jam melalui Portal Warga.
-              </p>
-            </div>
-            <div className="card-village p-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-                <Clock3 className="w-5 h-5" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Pantau Statusnya</h3>
-              <p className="text-sm text-muted-foreground">
-                Cek perkembangan permohonan—dari diajukan, diproses, hingga selesai—langsung dari akun Anda.
-              </p>
-            </div>
-            <div className="card-village p-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-1">Data Anda Aman</h3>
-              <p className="text-sm text-muted-foreground">
-                Data pribadi pemohon hanya dapat dilihat oleh Anda dan petugas desa yang berwenang.
-              </p>
-            </div>
+        <div className="container-village space-y-14">
+          <LangkahLayanan
+            judul="Cara Mengajukan Surat"
+            deskripsi="Empat langkah mudah dari rumah, tanpa antre di kantor desa."
+            langkah={langkah}
+          />
+
+          <div>
+            <h2 className="mb-5 text-2xl font-bold text-foreground">Status Permohonan Terkini</h2>
+            <RingkasanStatus judul="Total Permohonan" status={rows.map((r) => r.status)} />
           </div>
 
-          <div className="card-village overflow-hidden">
-            <div className="p-5 border-b flex items-center justify-between flex-wrap gap-2">
-              <div>
-                <h3 className="font-semibold text-foreground">Status Permohonan Surat Terbaru</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Papan status publik — gunakan kode lacak untuk memeriksa permohonan Anda di Portal Warga.
-                </p>
+          {jenisPopuler.length > 0 && (
+            <div className="card-village p-6">
+              <h3 className="flex items-center gap-2 font-semibold text-foreground">
+                <FileText className="h-5 w-5 text-primary" />
+                Jenis surat yang sering diajukan
+              </h3>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {jenisPopuler.map(([jenis, jumlah]) => (
+                  <span key={jenis} className="inline-flex items-center gap-2 rounded-full border bg-background px-3.5 py-1.5 text-sm text-foreground">
+                    {jenis}
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{jumlah}</span>
+                  </span>
+                ))}
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Kode Lacak</th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Nama Pemohon</th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Jenis Surat</th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Tanggal Pengajuan</th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {permohonan.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="p-6 text-center text-muted-foreground">
-                        Belum ada permohonan surat yang tercatat.
-                      </td>
-                    </tr>
-                  ) : (
-                    permohonan.map((p) => (
-                      <tr key={p.kode_lacak} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
-                        <td className="p-3 font-mono text-xs font-medium text-foreground">{p.kode_lacak}</td>
-                        <td className="p-3 text-foreground">{p.nama_pemohon}</td>
-                        <td className="p-3 text-foreground">{toJudulSurat(p.type)}</td>
-                        <td className="p-3 text-muted-foreground">{formatTanggalDariTimestamp(p.created_at)}</td>
-                        <td className="p-3">
-                          <StatusBadge status={p.status} />
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+          )}
+
+          <div>
+            <div className="mb-5">
+              <h2 className="text-2xl font-bold text-foreground">Papan Status Permohonan</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Papan status publik. Gunakan kode lacak untuk memeriksa permohonan Anda di Portal Warga.
+              </p>
             </div>
+            <PapanStatus rows={rows} judulKolom="Jenis Surat" kosong="Belum ada permohonan surat yang tercatat." />
           </div>
+
+          <PertanyaanUmum
+            judul="Pertanyaan Umum"
+            items={[
+              {
+                q: "Apakah saya harus datang ke kantor desa?",
+                a: "Pengajuan dilakukan sepenuhnya online lewat Portal Warga. Dokumen yang sudah selesai dapat diunduh dari akun Anda.",
+              },
+              {
+                q: "Bagaimana cara mengetahui permohonan saya sudah diproses?",
+                a: "Setiap permohonan punya status (diajukan, diproses, selesai) yang bisa dilihat di akun Anda, dan kode lacaknya juga tampil di papan status di halaman ini.",
+              },
+              {
+                q: "Apakah data pribadi saya aman?",
+                a: "Data pribadi pemohon hanya dapat dilihat oleh Anda dan petugas desa yang berwenang.",
+              },
+            ]}
+          />
+
+          <CtaLayanan
+            judul="Siap mengajukan surat?"
+            deskripsi="Masuk ke Portal Warga untuk memulai permohonan Anda sekarang."
+            label="Buka Portal Warga"
+            href={adminUrl}
+          />
         </div>
       </section>
     </>
